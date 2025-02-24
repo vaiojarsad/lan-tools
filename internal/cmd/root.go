@@ -3,11 +3,11 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/vaiojarsad/cloudflare-tools/internal/utils/loggerutils"
+	"github.com/vaiojarsad/lan-tools/internal/utils/loggerutils"
 
-	"github.com/vaiojarsad/cloudflare-tools/internal/config"
-	"github.com/vaiojarsad/cloudflare-tools/internal/environment"
-	"github.com/vaiojarsad/cloudflare-tools/internal/utils"
+	"github.com/vaiojarsad/lan-tools/internal/config"
+	"github.com/vaiojarsad/lan-tools/internal/environment"
+	"github.com/vaiojarsad/lan-tools/internal/utils"
 )
 
 func NewCloudFlareToolsRootCommand() *cobra.Command {
@@ -18,6 +18,7 @@ func NewCloudFlareToolsRootCommand() *cobra.Command {
 	cmd.AddCommand(NewDatabaseRootCommand())
 
 	utils.ForEach(cmd.Commands(), func(c *cobra.Command) {
+		c.PersistentFlags().String(cfgFileFlag, "", "specifies the configuration file")
 		c.PersistentPreRunE = loadCfg
 	})
 
@@ -26,7 +27,7 @@ func NewCloudFlareToolsRootCommand() *cobra.Command {
 
 func newCloudFlareToolsRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "cloudflare-tools",
+		Use:   "lan-tools",
 		Short: "Cloudflare toolset",
 		Long:  "Cloudflare toolset that interacts with the Cloudflare API",
 	}
@@ -39,7 +40,6 @@ func loadCfg(c *cobra.Command, _ []string) error {
 		configFile = ""
 	}
 	env := environment.Create()
-	env.ConfigFile = configFile
 	env.ErrorLogger = loggerutils.GetStdErrorLogger()
 	env.OutputLogger = loggerutils.GetStdOutputLogger()
 	cm, err := config.Create(configFile)

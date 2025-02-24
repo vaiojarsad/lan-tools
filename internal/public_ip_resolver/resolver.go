@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/vaiojarsad/cloudflare-tools/internal/utils/httputils"
+	"github.com/vaiojarsad/lan-tools/internal/utils/httputils"
 )
 
 type PublicIPResolver interface {
@@ -26,7 +26,7 @@ func NewPublicIPResolver(resType string, resCfg map[string]string) (PublicIPReso
 			ip:  resCfg["ip"],
 		}, nil
 	}
-	return nil, fmt.Errorf("no resolver found for type %s", resType)
+	return nil, nil
 }
 
 type ipifyResolver struct {

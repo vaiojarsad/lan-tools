@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/vaiojarsad/cloudflare-tools/internal/database"
+	"github.com/vaiojarsad/lan-tools/internal/database"
 )
 
 func NewDatabaseCreateCommand() *cobra.Command {

@@ -52,7 +52,7 @@ func newJSONFileBackedConfigManager(file string) (Manager, error) {
 		if err != nil {
 			return nil, err
 		}
-		file = filepath.Join(dir, ".cloudflare-tools.json")
+		file = filepath.Join(dir, ".lan-tools.json")
 	}
 	data, err := os.ReadFile(file)
 	if err != nil {

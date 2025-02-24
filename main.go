@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/vaiojarsad/cloudflare-tools/internal/cmd"
+	"github.com/vaiojarsad/lan-tools/internal/cmd"
 	"os"
 )
 

@@ -14,7 +14,7 @@ func Create() error {
 		_ = db.Close()
 	}(db)
 	var errs []error
-	for _, t := range tables {
+	for _, t := range ddls {
 		_, err = db.Exec(t)
 		if err != nil {
 			errs = append(errs, err)

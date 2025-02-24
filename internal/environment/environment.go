@@ -4,12 +4,11 @@ import (
 	"log"
 	"sync"
 
-	"github.com/vaiojarsad/cloudflare-tools/internal/config"
+	"github.com/vaiojarsad/lan-tools/internal/config"
 )
 
 // Environment holds the execution context
 type Environment struct {
-	ConfigFile    string
 	ConfigManager config.Manager
 	ErrorLogger   *log.Logger
 	OutputLogger  *log.Logger

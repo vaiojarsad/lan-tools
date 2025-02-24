@@ -6,7 +6,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"github.com/vaiojarsad/cloudflare-tools/internal/environment"
+	"github.com/vaiojarsad/lan-tools/internal/environment"
 )
 
 func getDatabasePath() string {

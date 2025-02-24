@@ -1,7 +1,15 @@
 package cmd
 
 const (
-	cfgFileFlag = "config-file"
+	// Globals & commons
+	cfgFileFlag        = "config-file"
+	publicIpGetterType = "pub-ip-getter-type"
+	publicIpGetterCfg  = "pub-ip-getter-cfg"
 
-	cfgFileShortHandFlag = "c"
+	// ISP
+	ispCodeFlag = "code"
+	ispNameFlag = "name"
+	// ISP Short
+	ispCodeShortHandFlag = "c"
+	ispNameShortHandFlag = "n"
 )
