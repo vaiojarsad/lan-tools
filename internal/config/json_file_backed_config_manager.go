@@ -7,13 +7,6 @@ import (
 	"path/filepath"
 )
 
-type jsonISPsConfig struct {
-	Name               string            `json:"name,omitempty"`
-	PublicIPGetterType string            `json:"public_ip_getter_type,omitempty"`
-	PublicIPGetterCfg  map[string]string `json:"public_ip_getter_cfg,omitempty"`
-	HostedDomains      []string          `json:"hosted_domains,omitempty"`
-}
-
 type jsonSMTPConfig struct {
 	Host   string `json:"host,omitempty"`
 	Port   int    `json:"port,omitempty"`
@@ -27,23 +20,14 @@ type jsonDatabaseConfig struct {
 	Name string `json:"name,omitempty"`
 }
 
-type jsonCloudflareConfig struct {
-	Token   string   `json:"token,omitempty"`
-	Domains []string `json:"domains,omitempty"`
-}
-
 type jsonConfig struct {
-	SMTPConfig       jsonSMTPConfig            `json:"smtp_config,omitempty"`
-	ISPsConfig       map[string]jsonISPsConfig `json:"isps_config,omitempty"`
-	DatabaseConfig   jsonDatabaseConfig        `json:"database_config,omitempty"`
-	CloudflareConfig jsonCloudflareConfig      `json:"cloudflare_config,omitempty"`
+	SMTPConfig     jsonSMTPConfig     `json:"smtp_config,omitempty"`
+	DatabaseConfig jsonDatabaseConfig `json:"database_config,omitempty"`
 }
 
 type jsonFileBackedConfigManager struct {
-	smtpConfig       *SMTPConfig
-	databaseConfig   *DatabaseConfig
-	cloudflareConfig *CloudflareConfig
-	ispsConfig       map[string]*ISPConfig
+	smtpConfig     *SMTPConfig
+	databaseConfig *DatabaseConfig
 }
 
 func newJSONFileBackedConfigManager(file string) (Manager, error) {
@@ -77,27 +61,9 @@ func newJSONFileBackedConfigManager(file string) (Manager, error) {
 			Path: c.DatabaseConfig.Path,
 			Name: c.DatabaseConfig.Name,
 		},
-		cloudflareConfig: &CloudflareConfig{
-			Token:   c.CloudflareConfig.Token,
-			Domains: c.CloudflareConfig.Domains,
-		},
-		ispsConfig: make(map[string]*ISPConfig),
-	}
-
-	for k, v := range c.ISPsConfig {
-		m.ispsConfig[k] = transform(v)
 	}
 
 	return m, nil
-}
-
-func transform(v jsonISPsConfig) *ISPConfig {
-	return &ISPConfig{
-		Name:               v.Name,
-		PublicIPGetterType: v.PublicIPGetterType,
-		PublicIPGetterCfg:  v.PublicIPGetterCfg,
-		HostedDomains:      v.HostedDomains,
-	}
 }
 
 func (cm *jsonFileBackedConfigManager) GetSMTPConfig() *SMTPConfig {
@@ -106,12 +72,4 @@ func (cm *jsonFileBackedConfigManager) GetSMTPConfig() *SMTPConfig {
 
 func (cm *jsonFileBackedConfigManager) GetDatabaseConfig() *DatabaseConfig {
 	return cm.databaseConfig
-}
-
-func (cm *jsonFileBackedConfigManager) GetCloudflareConfig() *CloudflareConfig {
-	return cm.cloudflareConfig
-}
-
-func (cm *jsonFileBackedConfigManager) GetISPsConfig() map[string]*ISPConfig {
-	return cm.ispsConfig
 }

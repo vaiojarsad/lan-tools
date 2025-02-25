@@ -13,8 +13,6 @@ var (
 type Manager interface {
 	GetSMTPConfig() *SMTPConfig
 	GetDatabaseConfig() *DatabaseConfig
-	GetCloudflareConfig() *CloudflareConfig
-	GetISPsConfig() map[string]*ISPConfig
 }
 
 // Create returns the singleton instance, creating it if necessary

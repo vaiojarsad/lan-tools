@@ -25,8 +25,8 @@ func newIspCreateCommand() *cobra.Command {
 	p := ispCreateParams{}
 	cmd := &cobra.Command{
 		Use:   "create",
-		Short: "Inserts the new ISP",
-		Long:  "Inserts the new ISP",
+		Short: "Creates a new ISP",
+		Long:  "Creates a new ISP",
 		RunE:  ispCreateCommand(&p),
 	}
 	f := cmd.Flags()

@@ -14,8 +14,8 @@ func NewISPRootCommand() *cobra.Command {
 func newIspRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "isp",
-		Short: "ISP interaction",
-		Long:  "ISP interaction",
+		Short: "ISP management",
+		Long:  "ISP management",
 	}
 
 	return cmd

@@ -4,7 +4,7 @@ import "github.com/spf13/cobra"
 
 func NewDnsRootCommand() *cobra.Command {
 	cmd := newDnsRootCommand()
-	cmd.AddCommand(NewDnsListRootCommand())
+	cmd.AddCommand(NewDnsProviderRootCommand())
 
 	return cmd
 }
