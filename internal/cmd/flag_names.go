@@ -23,4 +23,22 @@ const (
 	// DNS Provider Short
 	dnsProviderCodeShortHandFlag = "c"
 	dnsProviderNameShortHandFlag = "n"
+
+	// Domain
+	domainNameFlag            = "name"
+	domainDescriptionFlag     = "description"
+	domainDnsProviderCodeFlag = "dns-provider-code"
+
+	//Domain Short
+	domainNameShortHandFlag            = "n"
+	domainDescriptionShortHandFlag     = "d"
+	domainDnsProviderCodeShortHandFlag = "p"
+
+	// Domain IspCfg
+	domainIspCfgDomainNameFlag = "domain"
+	domainIspCfgIspCodeFlag    = "isp-code"
+
+	// Domain IspCfg Short
+	domainIspCfgDomainNameShortHandFlag = "d"
+	domainIspCfgIspCodeShortHandFlag    = "p"
 )

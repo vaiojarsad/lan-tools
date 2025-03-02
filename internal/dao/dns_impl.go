@@ -22,9 +22,6 @@ func (d *databaseSqlDnsProviderDaoImpl) Insert(e *entities.DNSProvider) error {
 	}
 	defer utils.Close(db)
 
-	// CREATE TABLE dns_provider ( id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT UNIQUE NOT NULL, name TEXT UNIQUE
-	//NOT NULL, type TEXT NOT NULL, cfg TEXT NOT NULL );
-
 	stmt, err := db.Prepare("INSERT INTO dns_provider(code, name, type, cfg) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		return nil
@@ -51,7 +48,7 @@ func (d *databaseSqlDnsProviderDaoImpl) GetByCode(code string) (*entities.DNSPro
 	}
 	defer utils.Close(db)
 
-	stmt, err := db.Prepare("SELECT id, name, type, cfg FROM isp WHERE code = ?")
+	stmt, err := db.Prepare("SELECT id, name, type, cfg FROM dns_provider WHERE code = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -61,6 +58,35 @@ func (d *databaseSqlDnsProviderDaoImpl) GetByCode(code string) (*entities.DNSPro
 	var name, serviceType, serviceCfgStr string
 
 	err = stmt.QueryRow(code).Scan(&id, &name, &serviceType, &serviceCfgStr)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
+	var serviceCfg map[string]string
+	err = json.Unmarshal([]byte(serviceCfgStr), &serviceCfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return entities.NewDNSProvider(id, code, name, serviceType, serviceCfg), nil
+}
+
+func (d *databaseSqlDnsProviderDaoImpl) GetById(id int64) (*entities.DNSProvider, error) {
+	db, err := database.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer utils.Close(db)
+
+	stmt, err := db.Prepare("SELECT code, name, type, cfg FROM dns_provider WHERE id = ?")
+	if err != nil {
+		return nil, err
+	}
+	defer utils.Close(stmt)
+
+	var code, name, serviceType, serviceCfgStr string
+
+	err = stmt.QueryRow(id).Scan(&code, &name, &serviceType, &serviceCfgStr)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}

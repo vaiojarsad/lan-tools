@@ -43,3 +43,30 @@ func addDNSProviderServiceCfgFlag(s *map[string]string, f *pflag.FlagSet) {
 	f.StringToStringVar(s, dnsProviderServiceCfg, map[string]string{}, "specifies the DNS service provider configuration "+
 		"as a string to string map")
 }
+
+// Domain
+func addDomainNameFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, domainNameFlag, domainNameShortHandFlag, "", "specifies the domain name")
+	return domainNameFlag
+}
+
+func addDomainDescriptionFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, domainDescriptionFlag, domainDescriptionShortHandFlag, "", "specifies a brief description about the domain")
+	return domainDescriptionFlag
+}
+
+func addDomainDNSProviderCodeFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, domainDnsProviderCodeFlag, domainDnsProviderCodeShortHandFlag, "", "specifies the code for the DNS provider that resolves this domain")
+	return domainDnsProviderCodeFlag
+}
+
+// Domain IspCfg
+func addDomainIspCfgDomainNameFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, domainIspCfgDomainNameFlag, domainIspCfgDomainNameShortHandFlag, "", "specifies the domain name")
+	return domainIspCfgDomainNameFlag
+}
+
+func addDomainIspCfgIspCodeFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, domainIspCfgIspCodeFlag, domainIspCfgIspCodeShortHandFlag, "", "specifies the code for the ISP we want to associate the domain with")
+	return domainIspCfgIspCodeFlag
+}

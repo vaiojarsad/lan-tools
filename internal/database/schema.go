@@ -24,9 +24,11 @@ var ddls = []string{
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT UNIQUE NOT NULL,
 		description TEXT NULL,
-        dns_provider_id INTEGER UNIQUE NOT NULL,
+        dns_provider_id INTEGER NOT NULL,
         FOREIGN KEY (dns_provider_id) REFERENCES dns_provider(id) 
 	)`,
+
+	`CREATE INDEX IF NOT EXISTS ix_domain_dns_provider_id ON domain(dns_provider_id)`,
 
 	`CREATE TABLE IF NOT EXISTS domain_isp_cfg (
 		domain_id INTEGER,

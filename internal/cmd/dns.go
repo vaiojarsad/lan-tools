@@ -12,8 +12,8 @@ func NewDnsRootCommand() *cobra.Command {
 func newDnsRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dns",
-		Short: "Cloudflare DNS api interaction",
-		Long:  "Cloudflare DNS api interaction",
+		Short: "Domain name service utilities",
+		Long:  "Domain name service utilities",
 	}
 	return cmd
 }
