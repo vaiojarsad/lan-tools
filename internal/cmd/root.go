@@ -10,9 +10,9 @@ import (
 	"github.com/vaiojarsad/lan-tools/internal/utils"
 )
 
-func NewCloudFlareToolsRootCommand() *cobra.Command {
+func NewLanToolsRootCommand() *cobra.Command {
 	cobra.MousetrapHelpText = ""
-	cmd := newCloudFlareToolsRootCommand()
+	cmd := newLanToolsRootCommand()
 	cmd.AddCommand(NewDnsRootCommand())
 	cmd.AddCommand(NewISPRootCommand())
 	cmd.AddCommand(NewDatabaseRootCommand())
@@ -26,11 +26,11 @@ func NewCloudFlareToolsRootCommand() *cobra.Command {
 	return cmd
 }
 
-func newCloudFlareToolsRootCommand() *cobra.Command {
+func newLanToolsRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "lan-tools",
-		Short: "Cloudflare toolset",
-		Long:  "Cloudflare toolset that interacts with the Cloudflare API",
+		Short: "lan toolset",
+		Long:  "lan toolset",
 	}
 	return cmd
 }
