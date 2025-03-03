@@ -47,16 +47,20 @@ func RefreshIspPublicIp(ispCode string) error {
 		return fmt.Errorf("error retrieving public IP for ISP: %w", err)
 	}
 
+	return TryUpdateIspPublicIP(isp, ip)
+}
+
+func TryUpdateIspPublicIP(isp *entities.ISP, ip string) error {
+	ispDao := dao.NewISPDaoImpl()
 	if ip != isp.PublicIp {
-		environment.Get().OutputLogger.Printf("updating public ip for %s. Old: %s New: %s", isp.Name, isp.PublicIp, ip)
+		environment.Get().OutputLogger.Printf("updating public ip for %s. Old: %s New: %s\n", isp.Name, isp.PublicIp, ip)
 		isp.PublicIp = ip
 		isp.PublicIpModTime = time.Now()
-		if err = ispDao.UpdatePublicIpInfo(isp); err != nil {
+		if err := ispDao.UpdatePublicIpInfo(isp); err != nil {
 			return fmt.Errorf("error updating public ip info: %w", err)
 		}
 	} else {
-		environment.Get().OutputLogger.Printf("local and current public ip values for %s are equal. %s", isp.Name, ip)
+		environment.Get().OutputLogger.Printf("local and current public ip values for %s are equal. %s\n", isp.Name, ip)
 	}
-
 	return nil
 }
