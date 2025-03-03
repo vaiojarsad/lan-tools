@@ -52,8 +52,11 @@ func (d *databaseSqlDomainIspCfgDaoImpl) GetByDomainAndISPIds(domainId, ispId in
 	var dnsProviderCurrentIp, dnsProviderRecordId string
 
 	err = stmt.QueryRow(domainId, ispId).Scan(&dnsProviderCurrentIp, &dnsProviderRecordId)
-	if err == sql.ErrNoRows {
-		return nil, nil
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
 	}
 
 	return entities.NewDomainISPCfg(domainId, ispId, dnsProviderCurrentIp, dnsProviderRecordId), nil

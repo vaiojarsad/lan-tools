@@ -64,8 +64,11 @@ func (d *databaseSqlIspDaoImpl) GetByCode(code string) (*entities.ISP, error) {
 
 	err = stmt.QueryRow(code).Scan(&id, &name, &publicIpGetterType, &publicIpGetterCfgStr, &publicIp,
 		&publicIpModTimeStr)
-	if err == sql.ErrNoRows {
-		return nil, nil
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
 	}
 
 	publicIpModTime, err := time.Parse(time.RFC3339, publicIpModTimeStr)

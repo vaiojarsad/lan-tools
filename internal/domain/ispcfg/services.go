@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/vaiojarsad/lan-tools/internal/dao"
+	"github.com/vaiojarsad/lan-tools/internal/dns/provider/backend"
 	"github.com/vaiojarsad/lan-tools/internal/entities"
 	"github.com/vaiojarsad/lan-tools/internal/environment"
 	"github.com/vaiojarsad/lan-tools/internal/isp"
@@ -37,6 +38,18 @@ func Create(domainName, ispCode string) error {
 		environment.Get().ErrorLogger.Printf("error trying to update isp public IP in local DB; %v\n", err)
 		// Proceed even if we fail to update locally
 	}
+
+	b, err := backend.NewDNSProviderBackendService(d.DnsProvider.ServiceType, d.DnsProvider.ServiceCfg)
+	if err != nil {
+		return fmt.Errorf("error getting backend service for %s: %w", d.DnsProvider.Name, err)
+	}
+
+	records, err := b.GetRecordsByTypeAndName(d.Name, "A", d.Name)
+	if err != nil {
+		return fmt.Errorf("error getting dns records from dns provider: %w", err)
+	}
+
+	environment.Get().OutputLogger.Println("", "records", records)
 
 	return nil
 }

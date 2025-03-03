@@ -45,7 +45,7 @@ func (d *databaseSqlDomainDaoImpl) GetByName(name string) (*entities.Domain, err
 	}
 	defer utils.Close(db)
 
-	stmt, err := db.Prepare("SELECT id, description, dns_provider_id FROM doamin WHERE name = ?")
+	stmt, err := db.Prepare("SELECT id, description, dns_provider_id FROM domain WHERE name = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +55,11 @@ func (d *databaseSqlDomainDaoImpl) GetByName(name string) (*entities.Domain, err
 	var description string
 
 	err = stmt.QueryRow(name).Scan(&id, &description, &dnsProviderId)
-	if err == sql.ErrNoRows {
-		return nil, nil
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
 	}
 
 	p, err := d.dnsProviderDao.GetById(dnsProviderId)
