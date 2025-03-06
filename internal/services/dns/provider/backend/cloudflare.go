@@ -2,12 +2,12 @@ package backend
 
 import (
 	"context"
+	"github.com/vaiojarsad/lan-tools/internal/services/dns/provider/backend/entities"
 	"sync"
 	"time"
 
 	"github.com/cloudflare/cloudflare-go"
 
-	"github.com/vaiojarsad/lan-tools/internal/dns/provider/backend/entities"
 	"github.com/vaiojarsad/lan-tools/internal/utils"
 )
 
@@ -60,6 +60,7 @@ func transformDnsRecord(r cloudflare.DNSRecord) *entities.DNSRecord {
 		Type:       r.Type,
 		Name:       r.Name,
 		Content:    r.Content,
+		IspCode:    r.Comment,
 	}
 }
 

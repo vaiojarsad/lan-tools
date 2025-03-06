@@ -22,7 +22,7 @@ func (d *databaseSqlDnsProviderDaoImpl) Insert(e *entities.DNSProvider) error {
 	}
 	defer utils.Close(db)
 
-	stmt, err := db.Prepare("INSERT INTO dns_provider(code, name, type, cfg) VALUES (?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO dns(code, name, type, cfg) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		return nil
 	}
@@ -48,7 +48,7 @@ func (d *databaseSqlDnsProviderDaoImpl) GetByCode(code string) (*entities.DNSPro
 	}
 	defer utils.Close(db)
 
-	stmt, err := db.Prepare("SELECT id, name, type, cfg FROM dns_provider WHERE code = ?")
+	stmt, err := db.Prepare("SELECT id, name, type, cfg FROM dns WHERE code = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (d *databaseSqlDnsProviderDaoImpl) GetById(id int64) (*entities.DNSProvider
 	}
 	defer utils.Close(db)
 
-	stmt, err := db.Prepare("SELECT code, name, type, cfg FROM dns_provider WHERE id = ?")
+	stmt, err := db.Prepare("SELECT code, name, type, cfg FROM dns WHERE id = ?")
 	if err != nil {
 		return nil, err
 	}

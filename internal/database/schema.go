@@ -12,7 +12,7 @@ var ddls = []string{
 		public_ip_modified TEXT NULL
 	)`,
 
-	`CREATE TABLE IF NOT EXISTS dns_provider (
+	`CREATE TABLE IF NOT EXISTS dns (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		code TEXT UNIQUE NOT NULL,
 		name TEXT UNIQUE NOT NULL,
@@ -25,7 +25,7 @@ var ddls = []string{
 		name TEXT UNIQUE NOT NULL,
 		description TEXT NULL,
         dns_provider_id INTEGER NOT NULL,
-        FOREIGN KEY (dns_provider_id) REFERENCES dns_provider(id) 
+        FOREIGN KEY (dns_provider_id) REFERENCES dns(id) 
 	)`,
 
 	`CREATE INDEX IF NOT EXISTS ix_domain_dns_provider_id ON domain(dns_provider_id)`,

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/vaiojarsad/lan-tools/internal/domain"
+	"github.com/vaiojarsad/lan-tools/internal/services/domain"
 )
 
 func NewDomainCreateCommand() *cobra.Command {

@@ -4,7 +4,7 @@ import (
 	//"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/vaiojarsad/lan-tools/internal/isp"
+	"github.com/vaiojarsad/lan-tools/internal/services/isp"
 	//"github.com/vaiojarsad/lan-tools/internal/environment"
 	//"github.com/vaiojarsad/lan-tools/internal/isp"
 )

@@ -2,8 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-
-	"github.com/vaiojarsad/lan-tools/internal/dns/provider"
+	"github.com/vaiojarsad/lan-tools/internal/services/dns/provider"
 )
 
 func NewDnsProviderCreateCommand() *cobra.Command {

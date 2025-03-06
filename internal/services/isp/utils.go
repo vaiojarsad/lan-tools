@@ -2,8 +2,7 @@ package isp
 
 import (
 	"fmt"
-
-	"github.com/vaiojarsad/lan-tools/internal/public_ip_resolver"
+	"github.com/vaiojarsad/lan-tools/internal/utils/public_ip_resolver"
 )
 
 func GetPublicIP(getterType string, getterCfg map[string]string) (string, error) {

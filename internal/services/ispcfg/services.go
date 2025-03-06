@@ -2,16 +2,16 @@ package ispcfg
 
 import (
 	"fmt"
+	"github.com/vaiojarsad/lan-tools/internal/services/dns/provider/backend"
+	isp2 "github.com/vaiojarsad/lan-tools/internal/services/isp"
 
 	"github.com/vaiojarsad/lan-tools/internal/dao"
-	"github.com/vaiojarsad/lan-tools/internal/dns/provider/backend"
 	"github.com/vaiojarsad/lan-tools/internal/entities"
 	"github.com/vaiojarsad/lan-tools/internal/environment"
-	"github.com/vaiojarsad/lan-tools/internal/isp"
 )
 
 func Create(domainName, ispCode string) error {
-	d, p, c, err := getEntities(domainName, ispCode)
+	d, p, c, err := getKeyEntities(domainName, ispCode)
 	if err != nil {
 		return err
 	}
@@ -28,12 +28,12 @@ func Create(domainName, ispCode string) error {
 		return fmt.Errorf("configuration entry for domain %s and isp %s already exists. For updating, use 'refresh' instead of 'create'", d.Name, p.Name)
 	}
 
-	ip, err := isp.GetPublicIP(p.PublicIpGetterType, p.PublicIpGetterCfg)
+	ip, err := isp2.GetPublicIP(p.PublicIpGetterType, p.PublicIpGetterCfg)
 	if err != nil {
 		return fmt.Errorf("error retrieving public IP for ISP: %w", err)
 	}
 
-	err = isp.TryUpdateIspPublicIP(p, ip)
+	err = isp2.TryUpdateIspPublicIP(p, ip)
 	if err != nil {
 		environment.Get().ErrorLogger.Printf("error trying to update isp public IP in local DB; %v\n", err)
 		// Proceed even if we fail to update locally
@@ -48,13 +48,19 @@ func Create(domainName, ispCode string) error {
 	if err != nil {
 		return fmt.Errorf("error getting dns records from dns provider: %w", err)
 	}
-
 	environment.Get().OutputLogger.Println("", "records", records)
+
+	// A record might already exists for this domain-isp in the DNS side. If this is the case we may have to update the
+	// record with:
+	// * a new public IP
+	// * the isp ownership mark
+	// * both
+	// getRecordToUpdate()
 
 	return nil
 }
 
-func getEntities(domainName, ispCode string) (*entities.Domain, *entities.ISP, *entities.DomainISPCfg, error) {
+func getKeyEntities(domainName, ispCode string) (*entities.Domain, *entities.ISP, *entities.DomainISPCfg, error) {
 	domainDao := dao.NewDomainDaoImpl(dao.NewDNSProviderDaoImpl())
 	d, err := domainDao.GetByName(domainName)
 	if err != nil {
