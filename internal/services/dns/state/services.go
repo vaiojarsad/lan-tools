@@ -5,8 +5,6 @@ import (
 
 	"github.com/vaiojarsad/lan-tools/internal/dao"
 	"github.com/vaiojarsad/lan-tools/internal/entities"
-	"github.com/vaiojarsad/lan-tools/internal/environment"
-	"github.com/vaiojarsad/lan-tools/internal/services/isp"
 )
 
 func Create(domainName, ispCode string) error {
@@ -33,7 +31,7 @@ func Create(domainName, ispCode string) error {
 		return fmt.Errorf("configuration entry for domain %s and isp %s already exists. For updating, use 'refresh' instead of 'create'", d.Name, p.Name)
 	}
 
-	ip, err := isp.GetPublicIP(p.PublicIpGetterType, p.PublicIpGetterCfg)
+	/*ip, err := isp.GetPublicIP(p.PublicIpGetterType, p.PublicIpGetterCfg)
 	if err != nil {
 		return fmt.Errorf("error retrieving public IP for ISP: %w", err)
 	}
@@ -42,12 +40,12 @@ func Create(domainName, ispCode string) error {
 	if err != nil {
 		environment.Get().ErrorLogger.Printf("error trying to update isp public IP in local DB: %v\n", err)
 		// Proceed even if we fail to update locally
-	}
+	}*/
 
 	if err = domainISPCfgDao.Insert(&entities.DnsState{
 		DomainId:              d.StorageId(),
 		ISPId:                 p.StorageId(),
-		DnsProviderCurrentIp:  ip,
+		DnsProviderCurrentIp:  entities.Unknown,
 		DnsProviderRecordId:   entities.Unknown,
 		DnsProviderSyncStatus: entities.Unknown, // Might have been synced externally.
 	}); err != nil {

@@ -22,13 +22,13 @@ func (d *databaseSqlDnsStateDaoImpl) Insert(e *entities.DnsState) error {
 	}
 	defer utils.Close(db)
 
-	stmt, err := db.Prepare("INSERT INTO dns_state(domain_id, isp_id, dns_provider_current_ip, dns_provider_record_id) VALUES (?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO dns_state(domain_id, isp_id, dns_provider_current_ip, dns_provider_record_id, dns_provider_sync_status) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		return nil
 	}
 	defer utils.Close(stmt)
 
-	_, err = stmt.Exec(e.DomainId, e.ISPId, e.DnsProviderCurrentIp, e.DnsProviderRecordId)
+	_, err = stmt.Exec(e.DomainId, e.ISPId, e.DnsProviderCurrentIp, e.DnsProviderRecordId, e.DnsProviderSyncStatus)
 	if err != nil {
 		return err
 	}
@@ -69,13 +69,13 @@ func (d *databaseSqlDnsStateDaoImpl) UpdateDnsProviderInfo(e *entities.DnsState)
 	}
 	defer utils.Close(db)
 
-	stmt, err := db.Prepare("UPDATE dns_state SET dns_provider_current_ip = ?, dns_provider_record_id = ? WHERE domain_id = ? and isp_id = ?")
+	stmt, err := db.Prepare("UPDATE dns_state SET dns_provider_current_ip = ?, dns_provider_record_id = ?, dns_provider_sync_status = ? WHERE domain_id = ? and isp_id = ?")
 	if err != nil {
 		return nil
 	}
 	defer utils.Close(stmt)
 
-	_, err = stmt.Exec(e.DnsProviderCurrentIp, e.DnsProviderRecordId, e.DomainId, e.ISPId)
+	_, err = stmt.Exec(e.DnsProviderCurrentIp, e.DnsProviderRecordId, e.DnsProviderSyncStatus, e.DomainId, e.ISPId)
 	if err != nil {
 		return err
 	}
