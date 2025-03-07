@@ -12,7 +12,7 @@ var ddls = []string{
 		public_ip_modified TEXT NULL
 	)`,
 
-	`CREATE TABLE IF NOT EXISTS dns (
+	`CREATE TABLE IF NOT EXISTS dns_provider (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		code TEXT UNIQUE NOT NULL,
 		name TEXT UNIQUE NOT NULL,
@@ -25,24 +25,23 @@ var ddls = []string{
 		name TEXT UNIQUE NOT NULL,
 		description TEXT NULL,
         dns_provider_id INTEGER NOT NULL,
-        FOREIGN KEY (dns_provider_id) REFERENCES dns(id) 
+        FOREIGN KEY (dns_provider_id) REFERENCES dns_provider(id) 
 	)`,
 
-	`CREATE INDEX IF NOT EXISTS ix_domain_dns_provider_id ON domain(dns_provider_id)`,
+	`CREATE INDEX IF NOT EXISTS ix_for_domain_on_dns_provider_id ON domain(dns_provider_id)`,
 
-	`CREATE TABLE IF NOT EXISTS domain_isp_cfg (
+	`CREATE TABLE IF NOT EXISTS dns_state (
 		domain_id INTEGER,
 		isp_id INTEGER,
-		dns_provider_current_ip TEXT NOT NULL,
-		dns_provider_record_id TEXT NOT NULL,
+		dns_provider_current_ip TEXT,
+		dns_provider_record_id TEXT,
+		dns_provider_sync_status TEXT NOT NULL,
 		PRIMARY KEY (domain_id, isp_id),
 		FOREIGN KEY (domain_id) REFERENCES domain(id),
-		FOREIGN KEY (isp_id) REFERENCES isp(id),
-        CONSTRAINT uk_domain_isp UNIQUE (domain_id, dns_provider_current_ip),
-        CONSTRAINT uk_domain_isp UNIQUE (domain_id, dns_provider_record_id)
+		FOREIGN KEY (isp_id) REFERENCES isp(id)
 	)`,
 
-	`CREATE INDEX IF NOT EXISTS ix_domain_isp_cfg_isp_id ON domain_isp_cfg(isp_id)`,
+	`CREATE INDEX IF NOT EXISTS ix_for_dns_state_on_isp_id ON dns_state(isp_id)`,
 }
 
 /*

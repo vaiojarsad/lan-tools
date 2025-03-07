@@ -60,13 +60,13 @@ func addDomainDNSProviderCodeFlag(s *string, f *pflag.FlagSet) string {
 	return domainDnsProviderCodeFlag
 }
 
-// Domain IspCfg
-func addDomainIspCfgDomainNameFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, domainIspCfgDomainNameFlag, domainIspCfgDomainNameShortHandFlag, "", "specifies the domain name")
-	return domainIspCfgDomainNameFlag
+// DNS State
+func addDnsStateDomainNameFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, dnsStateDomainNameFlag, dnsStateDomainNameShortHandFlag, "", "specifies the domain name")
+	return dnsStateDomainNameFlag
 }
 
-func addDomainIspCfgIspCodeFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, domainIspCfgIspCodeFlag, domainIspCfgIspCodeShortHandFlag, "", "specifies the code for the ISP we want to associate the domain with")
-	return domainIspCfgIspCodeFlag
+func addDnsStateIspCodeFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, dnsStateIspCodeFlag, dnsStateIspCodeShortHandFlag, "", "specifies the code for the ISP we want to associate the domain with")
+	return dnsStateIspCodeFlag
 }

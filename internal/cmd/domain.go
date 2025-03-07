@@ -5,7 +5,6 @@ import "github.com/spf13/cobra"
 func NewDomainRootCommand() *cobra.Command {
 	cmd := newDomainRootCommand()
 	cmd.AddCommand(NewDomainCreateCommand())
-	cmd.AddCommand(NewDomainIspCfgCommand())
 
 	return cmd
 }

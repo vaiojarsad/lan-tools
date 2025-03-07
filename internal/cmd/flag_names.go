@@ -34,11 +34,11 @@ const (
 	domainDescriptionShortHandFlag     = "d"
 	domainDnsProviderCodeShortHandFlag = "p"
 
-	// Domain IspCfg
-	domainIspCfgDomainNameFlag = "domain"
-	domainIspCfgIspCodeFlag    = "isp-code"
+	// Dns State
+	dnsStateDomainNameFlag = "domain"
+	dnsStateIspCodeFlag    = "isp-code"
 
-	// Domain IspCfg Short
-	domainIspCfgDomainNameShortHandFlag = "d"
-	domainIspCfgIspCodeShortHandFlag    = "p"
+	// Dns State
+	dnsStateDomainNameShortHandFlag = "d"
+	dnsStateIspCodeShortHandFlag    = "p"
 )

@@ -8,21 +8,21 @@ import (
 	"github.com/vaiojarsad/lan-tools/internal/utils"
 )
 
-func NewDNSProviderDaoImpl() DNSProviderDao {
+func NewDnsProviderDaoImpl() DnsProviderDao {
 	return &databaseSqlDnsProviderDaoImpl{}
 }
 
 type databaseSqlDnsProviderDaoImpl struct {
 }
 
-func (d *databaseSqlDnsProviderDaoImpl) Insert(e *entities.DNSProvider) error {
+func (d *databaseSqlDnsProviderDaoImpl) Insert(e *entities.DnsProvider) error {
 	db, err := database.Open()
 	if err != nil {
 		return err
 	}
 	defer utils.Close(db)
 
-	stmt, err := db.Prepare("INSERT INTO dns(code, name, type, cfg) VALUES (?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO dns_provider(code, name, type, cfg) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		return nil
 	}
@@ -41,14 +41,14 @@ func (d *databaseSqlDnsProviderDaoImpl) Insert(e *entities.DNSProvider) error {
 	return nil
 }
 
-func (d *databaseSqlDnsProviderDaoImpl) GetByCode(code string) (*entities.DNSProvider, error) {
+func (d *databaseSqlDnsProviderDaoImpl) GetByCode(code string) (*entities.DnsProvider, error) {
 	db, err := database.Open()
 	if err != nil {
 		return nil, err
 	}
 	defer utils.Close(db)
 
-	stmt, err := db.Prepare("SELECT id, name, type, cfg FROM dns WHERE code = ?")
+	stmt, err := db.Prepare("SELECT id, name, type, cfg FROM dns_provider WHERE code = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -71,17 +71,17 @@ func (d *databaseSqlDnsProviderDaoImpl) GetByCode(code string) (*entities.DNSPro
 		return nil, err
 	}
 
-	return entities.NewDNSProvider(id, code, name, serviceType, serviceCfg), nil
+	return entities.NewDnsProvider(id, code, name, serviceType, serviceCfg), nil
 }
 
-func (d *databaseSqlDnsProviderDaoImpl) GetById(id int64) (*entities.DNSProvider, error) {
+func (d *databaseSqlDnsProviderDaoImpl) GetById(id int64) (*entities.DnsProvider, error) {
 	db, err := database.Open()
 	if err != nil {
 		return nil, err
 	}
 	defer utils.Close(db)
 
-	stmt, err := db.Prepare("SELECT code, name, type, cfg FROM dns WHERE id = ?")
+	stmt, err := db.Prepare("SELECT code, name, type, cfg FROM dns_provider WHERE id = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -100,5 +100,5 @@ func (d *databaseSqlDnsProviderDaoImpl) GetById(id int64) (*entities.DNSProvider
 		return nil, err
 	}
 
-	return entities.NewDNSProvider(id, code, name, serviceType, serviceCfg), nil
+	return entities.NewDnsProvider(id, code, name, serviceType, serviceCfg), nil
 }

@@ -1,6 +1,6 @@
 package entities
 
-func NewDomain(storageId int64, name, description string, dnsProvider *DNSProvider) *Domain {
+func NewDomain(storageId int64, name, description string, dnsProvider *DnsProvider) *Domain {
 	return &Domain{
 		storageId:   storageId,
 		Name:        name,
@@ -13,7 +13,7 @@ type Domain struct {
 	storageId   int64
 	Name        string
 	Description string
-	DnsProvider *DNSProvider
+	DnsProvider *DnsProvider
 }
 
 func (s *Domain) StorageId() int64 {

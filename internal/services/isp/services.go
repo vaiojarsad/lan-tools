@@ -16,18 +16,21 @@ func Create(code, name, publicIpGetterType string, publicIpGetterCfg map[string]
 		Name:               name,
 		PublicIpGetterType: publicIpGetterType,
 		PublicIpGetterCfg:  publicIpGetterCfg,
-		PublicIp:           "",
+		PublicIp:           entities.Unknown,
 		PublicIpModTime:    time.Time{},
 	}
 	if publicIpGetterType != "" {
 		currentIp, err := GetPublicIP(publicIpGetterType, publicIpGetterCfg)
 		if err != nil {
-			return err
+			return fmt.Errorf("error retrieving public IP for ISP: %w", err)
 		}
 		isp.PublicIp = currentIp
 		isp.PublicIpModTime = time.Now()
 	}
-	return ispDao.Insert(isp)
+	if err := ispDao.Insert(isp); err != nil {
+		return fmt.Errorf("error inserting isp: %w", err)
+	}
+	return nil
 }
 
 func RefreshIspPublicIp(ispCode string) error {

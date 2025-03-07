@@ -9,12 +9,12 @@ import (
 	"github.com/vaiojarsad/lan-tools/internal/utils"
 )
 
-func NewDomainDaoImpl(dnsProviderDao DNSProviderDao) DomainDao {
+func NewDomainDaoImpl(dnsProviderDao DnsProviderDao) DomainDao {
 	return &databaseSqlDomainDaoImpl{dnsProviderDao: dnsProviderDao}
 }
 
 type databaseSqlDomainDaoImpl struct {
-	dnsProviderDao DNSProviderDao
+	dnsProviderDao DnsProviderDao
 }
 
 func (d *databaseSqlDomainDaoImpl) Insert(e *entities.Domain) error {

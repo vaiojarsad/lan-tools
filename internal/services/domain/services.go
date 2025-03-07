@@ -8,7 +8,7 @@ import (
 )
 
 func Create(name, description, dnsProviderCode string) error {
-	dnsProviderDao := dao.NewDNSProviderDaoImpl()
+	dnsProviderDao := dao.NewDnsProviderDaoImpl()
 
 	dnsProvider, err := dnsProviderDao.GetByCode(dnsProviderCode)
 	if err != nil {
@@ -27,5 +27,8 @@ func Create(name, description, dnsProviderCode string) error {
 		DnsProvider: dnsProvider,
 	}
 
-	return domainDao.Insert(domain)
+	if err = domainDao.Insert(domain); err != nil {
+		return fmt.Errorf("error inserting domain: %w", err)
+	}
+	return nil
 }
