@@ -132,3 +132,24 @@ func (s *cloudFlareDNSService) CreateDnsRecord(zone string, record *entities.DNS
 	record.ProviderId = r.ID
 	return nil
 }
+
+func (s *cloudFlareDNSService) GetDnsRecord(zone, recordId string) (*entities.DNSRecord, error) {
+	zoneId, err := s.getZoneID(zone)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	record, err := s.api.GetDNSRecord(ctx, cloudflare.ZoneIdentifier(zoneId), recordId)
+	if err != nil {
+		return nil, err
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return transformDnsRecord(record), nil
+}

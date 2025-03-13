@@ -14,13 +14,13 @@ func Create(domainName, ispCode string) error {
 	}
 
 	dnsStateDao := dao.NewDnsStateDaoImpl()
-	s, err := dnsStateDao.GetByDomainAndIspIds(d.StorageId(), p.StorageId())
+	state, err := dnsStateDao.GetByDomainAndIspIds(d.StorageId(), p.StorageId())
 	if err != nil {
 		return fmt.Errorf("error searching domain isp configuration for domain %s and isp %s: %w", d.Name, p.Name, err)
 	}
 
-	if s != nil {
-		return fmt.Errorf("configuration entry for domain %s and isp %s already exists. For updating, use 'refresh' instead of 'create'", d.Name, p.Name)
+	if state != nil {
+		return fmt.Errorf("state entry for domain %s and isp %s already exists", d.Name, p.Name)
 	}
 
 	if err = dnsStateDao.Insert(&entities.DnsState{

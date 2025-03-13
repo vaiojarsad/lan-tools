@@ -13,7 +13,7 @@ import (
 func NewLanToolsRootCommand() *cobra.Command {
 	cobra.MousetrapHelpText = ""
 	cmd := newLanToolsRootCommand()
-	// cmd.AddCommand(NewDnsRootCommand())
+	cmd.AddCommand(NewDnsRootCommand())
 	cmd.AddCommand(NewISPRootCommand())
 	cmd.AddCommand(NewCreateRootCommand())
 
