@@ -27,7 +27,7 @@ func newIspRefreshPublicIpCommand() *cobra.Command {
 		RunE:  ispRefreshPublicIpCommand(&p),
 	}
 	f := cmd.Flags()
-	_ = cmd.MarkFlagRequired(addISPCodeFlag(&p.code, f))
+	_ = cmd.MarkFlagRequired(addIspCodeFlag(&p.code, f))
 	return cmd
 }
 

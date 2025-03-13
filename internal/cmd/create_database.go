@@ -2,24 +2,25 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+
 	"github.com/vaiojarsad/lan-tools/internal/database"
 )
 
-func NewDatabaseCreateCommand() *cobra.Command {
-	cmd := newDatabaseCreateCommand()
+func NewCreateDatabaseCommand() *cobra.Command {
+	cmd := newCreateDatabaseCommand()
 	return cmd
 }
 
-func newDatabaseCreateCommand() *cobra.Command {
+func newCreateDatabaseCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create",
+		Use:   "database",
 		Short: "Creates the local database and its structures (tables)",
 		Long:  "Creates the local database and its structures (tables)",
-		RunE:  databaseCreateRun,
+		RunE:  createDatabaseRun,
 	}
 	return cmd
 }
 
-func databaseCreateRun(_ *cobra.Command, _ []string) error {
+func createDatabaseRun(_ *cobra.Command, _ []string) error {
 	return database.Create()
 }

@@ -83,3 +83,52 @@ func (s *cloudFlareDNSService) getZoneID(zoneName string) (string, error) {
 
 	return zoneID, nil
 }
+
+func (s *cloudFlareDNSService) UpdateDnsRecord(zone string, record *entities.DNSRecord) error {
+	zoneId, err := s.getZoneID(zone)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err = s.api.UpdateDNSRecord(ctx, cloudflare.ZoneIdentifier(zoneId), cloudflare.UpdateDNSRecordParams{
+		Type:    record.Type,
+		Name:    record.Name,
+		Content: record.Content,
+		ID:      record.ProviderId,
+		Comment: &record.IspCode,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *cloudFlareDNSService) CreateDnsRecord(zone string, record *entities.DNSRecord) error {
+	zoneId, err := s.getZoneID(zone)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	proxied := false
+	r, err := s.api.CreateDNSRecord(ctx, cloudflare.ZoneIdentifier(zoneId), cloudflare.CreateDNSRecordParams{
+		CreatedOn:  time.Time{},
+		ModifiedOn: time.Time{},
+		Type:       record.Type,
+		Name:       record.Name,
+		Content:    record.Content,
+		Comment:    record.IspCode,
+		Proxied:    &proxied,
+	})
+	if err != nil {
+		return err
+	}
+	record.ProviderId = r.ID
+	return nil
+}

@@ -5,14 +5,14 @@ import "github.com/spf13/pflag"
 // Globals & commons
 
 // ISP
-func addISPCodeFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, ispCodeFlag, ispCodeShortHandFlag, "", "specifies unique acronym that identifies the ISP")
+func addIspCodeFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, ispCodeFlag, providerCodeShortHandFlag, "", "specifies unique acronym that identifies the ISP")
 	return ispCodeFlag
 }
 
-func addISPNameFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, ispNameFlag, ispNameShortHandFlag, "", "specifies the ISP name")
-	return ispNameFlag
+func addIspNameFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, nameFlag, nameShortHandFlag, "", "specifies the ISP name")
+	return nameFlag
 }
 
 func addPublicIpGetterTypeFlag(s *string, f *pflag.FlagSet) {
@@ -25,48 +25,48 @@ func addPublicIpGetterCfgFlag(s *map[string]string, f *pflag.FlagSet) {
 }
 
 // DNS Provider
-func addDNSProviderCodeFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, dnsProviderCodeFlag, dnsProviderCodeShortHandFlag, "", "specifies unique acronym that identifies the DNS provider")
+func addDnsProviderCodeFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, dnsProviderCodeFlag, providerCodeShortHandFlag, "", "specifies unique acronym that identifies the DNS provider")
 	return dnsProviderCodeFlag
 }
 
-func addDNSProviderNameFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, dnsProviderNameFlag, dnsProviderNameShortHandFlag, "", "specifies the DNS provider name")
-	return dnsProviderNameFlag
+func addDnsProviderNameFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, nameFlag, nameShortHandFlag, "", "specifies the DNS provider name")
+	return nameFlag
 }
 
-func addDNSProviderServiceTypeFlag(s *string, f *pflag.FlagSet) {
+func addDnsProviderServiceTypeFlag(s *string, f *pflag.FlagSet) {
 	f.StringVar(s, dnsProviderServiceType, "", "specifies a DNS service provider type (ex. Cloudflare)")
 }
 
-func addDNSProviderServiceCfgFlag(s *map[string]string, f *pflag.FlagSet) {
+func addDnsProviderServiceCfgFlag(s *map[string]string, f *pflag.FlagSet) {
 	f.StringToStringVar(s, dnsProviderServiceCfg, map[string]string{}, "specifies the DNS service provider configuration "+
 		"as a string to string map")
 }
 
 // Domain
 func addDomainNameFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, domainNameFlag, domainNameShortHandFlag, "", "specifies the domain name")
-	return domainNameFlag
+	f.StringVarP(s, nameFlag, nameShortHandFlag, "", "specifies the domain name")
+	return nameFlag
 }
 
 func addDomainDescriptionFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, domainDescriptionFlag, domainDescriptionShortHandFlag, "", "specifies a brief description about the domain")
-	return domainDescriptionFlag
+	f.StringVarP(s, descriptionFlag, descriptionShortHandFlag, "", "specifies a brief description about the domain")
+	return descriptionFlag
 }
 
-func addDomainDNSProviderCodeFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, domainDnsProviderCodeFlag, domainDnsProviderCodeShortHandFlag, "", "specifies the code for the DNS provider that resolves this domain")
-	return domainDnsProviderCodeFlag
+func addDomainDnsProviderCodeFlag(s *string, f *pflag.FlagSet) string {
+	f.StringVarP(s, dnsProviderCodeFlag, providerCodeShortHandFlag, "", "specifies the code for the DNS provider that resolves this domain")
+	return dnsProviderCodeFlag
 }
 
 // DNS State
 func addDnsStateDomainNameFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, dnsStateDomainNameFlag, dnsStateDomainNameShortHandFlag, "", "specifies the domain name")
-	return dnsStateDomainNameFlag
+	f.StringVarP(s, domainNameFlag, domainNameShortHandFlag, "", "specifies the domain name")
+	return domainNameFlag
 }
 
 func addDnsStateIspCodeFlag(s *string, f *pflag.FlagSet) string {
-	f.StringVarP(s, dnsStateIspCodeFlag, dnsStateIspCodeShortHandFlag, "", "specifies the code for the ISP we want to associate the domain with")
-	return dnsStateIspCodeFlag
+	f.StringVarP(s, ispCodeFlag, codeShortHandFlag, "", "specifies the code for the ISP we want to associate the domain with")
+	return ispCodeFlag
 }

@@ -28,7 +28,7 @@ func (d *databaseSqlDnsStateDaoImpl) Insert(e *entities.DnsState) error {
 	}
 	defer utils.Close(stmt)
 
-	_, err = stmt.Exec(e.DomainId, e.ISPId, e.DnsProviderCurrentIp, e.DnsProviderRecordId, e.DnsProviderSyncStatus)
+	_, err = stmt.Exec(e.DomainId, e.IspId, e.DnsProviderCurrentIp, e.DnsProviderRecordId, e.DnsProviderSyncStatus)
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func (d *databaseSqlDnsStateDaoImpl) Insert(e *entities.DnsState) error {
 	return nil
 }
 
-func (d *databaseSqlDnsStateDaoImpl) GetByDomainAndISPIds(domainId, ispId int64) (*entities.DnsState, error) {
+func (d *databaseSqlDnsStateDaoImpl) GetByDomainAndIspIds(domainId, ispId int64) (*entities.DnsState, error) {
 	db, err := database.Open()
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (d *databaseSqlDnsStateDaoImpl) UpdateDnsProviderInfo(e *entities.DnsState)
 	}
 	defer utils.Close(stmt)
 
-	_, err = stmt.Exec(e.DnsProviderCurrentIp, e.DnsProviderRecordId, e.DnsProviderSyncStatus, e.DomainId, e.ISPId)
+	_, err = stmt.Exec(e.DnsProviderCurrentIp, e.DnsProviderRecordId, e.DnsProviderSyncStatus, e.DomainId, e.IspId)
 	if err != nil {
 		return err
 	}

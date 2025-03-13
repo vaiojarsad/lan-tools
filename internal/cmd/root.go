@@ -13,10 +13,9 @@ import (
 func NewLanToolsRootCommand() *cobra.Command {
 	cobra.MousetrapHelpText = ""
 	cmd := newLanToolsRootCommand()
-	cmd.AddCommand(NewDnsRootCommand())
+	// cmd.AddCommand(NewDnsRootCommand())
 	cmd.AddCommand(NewISPRootCommand())
-	cmd.AddCommand(NewDatabaseRootCommand())
-	cmd.AddCommand(NewDomainRootCommand())
+	cmd.AddCommand(NewCreateRootCommand())
 
 	utils.ForEach(cmd.Commands(), func(c *cobra.Command) {
 		c.PersistentFlags().String(cfgFileFlag, "", "specifies the configuration file")

@@ -3,7 +3,7 @@ package entities
 func NewDnsState(domainId, ispId int64, dnsProviderCurrentIp, dnsProviderRecordId, dnsProviderSyncStatus string) *DnsState {
 	return &DnsState{
 		DomainId:              domainId,
-		ISPId:                 ispId,
+		IspId:                 ispId,
 		DnsProviderCurrentIp:  dnsProviderCurrentIp,
 		DnsProviderRecordId:   dnsProviderRecordId,
 		DnsProviderSyncStatus: dnsProviderSyncStatus,
@@ -12,7 +12,7 @@ func NewDnsState(domainId, ispId int64, dnsProviderCurrentIp, dnsProviderRecordI
 
 type DnsState struct {
 	DomainId              int64
-	ISPId                 int64
+	IspId                 int64
 	DnsProviderCurrentIp  string
 	DnsProviderRecordId   string
 	DnsProviderSyncStatus string

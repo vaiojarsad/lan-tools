@@ -17,7 +17,7 @@ func NewISPDaoImpl() ISPDao {
 type databaseSqlIspDaoImpl struct {
 }
 
-func (d *databaseSqlIspDaoImpl) Insert(e *entities.ISP) error {
+func (d *databaseSqlIspDaoImpl) Insert(e *entities.Isp) error {
 	db, err := database.Open()
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func (d *databaseSqlIspDaoImpl) Insert(e *entities.ISP) error {
 	return nil
 }
 
-func (d *databaseSqlIspDaoImpl) GetByCode(code string) (*entities.ISP, error) {
+func (d *databaseSqlIspDaoImpl) GetByCode(code string) (*entities.Isp, error) {
 	db, err := database.Open()
 	if err != nil {
 		return nil, err
@@ -82,10 +82,10 @@ func (d *databaseSqlIspDaoImpl) GetByCode(code string) (*entities.ISP, error) {
 		return nil, err
 	}
 
-	return entities.NewISP(id, code, name, publicIpGetterType, publicIpGetterCfg, publicIp, publicIpModTime), nil
+	return entities.NewIsp(id, code, name, publicIpGetterType, publicIpGetterCfg, publicIp, publicIpModTime), nil
 }
 
-func (d *databaseSqlIspDaoImpl) UpdatePublicIpInfo(e *entities.ISP) error {
+func (d *databaseSqlIspDaoImpl) UpdatePublicIpInfo(e *entities.Isp) error {
 	db, err := database.Open()
 	if err != nil {
 		return err

@@ -6,4 +6,6 @@ import (
 
 type Service interface {
 	GetRecordsByTypeAndName(zone, rType, name string) ([]*entities.DNSRecord, error)
+	UpdateDnsRecord(zone string, record *entities.DNSRecord) error
+	CreateDnsRecord(zone string, record *entities.DNSRecord) error
 }
