@@ -69,3 +69,35 @@ func (d *databaseSqlDomainDaoImpl) GetByName(name string) (*entities.Domain, err
 
 	return entities.NewDomain(id, name, description, p), nil
 }
+
+func (d *databaseSqlDomainDaoImpl) GetById(id int64) (*entities.Domain, error) {
+	db, err := database.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer utils.Close(db)
+
+	stmt, err := db.Prepare("SELECT name, description, dns_provider_id FROM domain WHERE id = ?")
+	if err != nil {
+		return nil, err
+	}
+	defer utils.Close(stmt)
+
+	var name, description string
+	var dnsProviderId int64
+
+	err = stmt.QueryRow(id).Scan(&name, &description, &dnsProviderId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	p, err := d.dnsProviderDao.GetById(dnsProviderId)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving dns provider: %w", err)
+	}
+
+	return entities.NewDomain(id, name, description, p), nil
+}

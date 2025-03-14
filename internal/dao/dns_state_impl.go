@@ -62,6 +62,40 @@ func (d *databaseSqlDnsStateDaoImpl) GetByDomainAndIspIds(domainId, ispId int64)
 	return entities.NewDnsState(domainId, ispId, dnsProviderCurrentIp, dnsProviderRecordId, dnsProviderSyncStatus), nil
 }
 
+func (d *databaseSqlDnsStateDaoImpl) GetByIspId(ispId int64) ([]*entities.DnsState, error) {
+	db, err := database.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer utils.Close(db)
+
+	stmt, err := db.Prepare("SELECT domain_id, dns_provider_current_ip, dns_provider_record_id, dns_provider_sync_status FROM dns_state WHERE isp_id = ?")
+	if err != nil {
+		return nil, err
+	}
+	defer utils.Close(stmt)
+
+	var domainId int64
+	var dnsProviderCurrentIp, dnsProviderRecordId, dnsProviderSyncStatus string
+
+	rows, err := stmt.Query(ispId)
+	if err != nil {
+		return nil, err
+	}
+	defer utils.Close(rows)
+
+	var states []*entities.DnsState
+	for rows.Next() {
+		err = rows.Scan(&domainId, &dnsProviderCurrentIp, &dnsProviderRecordId, &dnsProviderSyncStatus)
+		if err != nil {
+			return nil, err
+		}
+		states = append(states, entities.NewDnsState(domainId, ispId, dnsProviderCurrentIp, dnsProviderRecordId, dnsProviderSyncStatus))
+	}
+
+	return states, nil
+}
+
 func (d *databaseSqlDnsStateDaoImpl) UpdateDnsProviderInfo(e *entities.DnsState) error {
 	db, err := database.Open()
 	if err != nil {

@@ -5,6 +5,7 @@ import "github.com/spf13/cobra"
 func NewDnsRootCommand() *cobra.Command {
 	cmd := newDnsRootCommand()
 	cmd.AddCommand(NewDnsSyncRecordACommand())
+	cmd.AddCommand(NewDnsSyncRecordsAForIspCommand())
 	return cmd
 }
 

@@ -90,8 +90,11 @@ func (d *databaseSqlDnsProviderDaoImpl) GetById(id int64) (*entities.DnsProvider
 	var code, name, serviceType, serviceCfgStr string
 
 	err = stmt.QueryRow(id).Scan(&code, &name, &serviceType, &serviceCfgStr)
-	if err == sql.ErrNoRows {
-		return nil, nil
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
 	}
 
 	var serviceCfg map[string]string
