@@ -3,12 +3,14 @@ package dns
 import (
 	"errors"
 	"fmt"
-	backEntities "github.com/vaiojarsad/lan-tools/internal/services/dns/provider/backend/entities"
+
+	"github.com/go-mail/mail"
 
 	"github.com/vaiojarsad/lan-tools/internal/dao"
 	"github.com/vaiojarsad/lan-tools/internal/entities"
 	"github.com/vaiojarsad/lan-tools/internal/environment"
 	"github.com/vaiojarsad/lan-tools/internal/services/dns/provider/backend"
+	backEntities "github.com/vaiojarsad/lan-tools/internal/services/dns/provider/backend/entities"
 	stateServices "github.com/vaiojarsad/lan-tools/internal/services/dns/state"
 	ispServices "github.com/vaiojarsad/lan-tools/internal/services/isp"
 )
@@ -203,6 +205,8 @@ func SyncRecordsA(ispCode string) error {
 		}
 	}
 
+	_ = sendMail(isp.Name, isp.PublicIp, localCurrentIp)
+
 	dnsStateDao := dao.NewDnsStateDaoImpl()
 	states, err := dnsStateDao.GetByIspId(isp.StorageId())
 	if err != nil {
@@ -268,4 +272,18 @@ func SyncRecordsA(ispCode string) error {
 	}
 
 	return errors.Join(errs...)
+}
+
+func sendMail(provider, lastIP, currentIP string) error {
+	c := environment.Get().ConfigManager.GetSMTPConfig()
+	m := mail.NewMessage()
+	m.SetHeader("From", c.Sender)
+	m.SetHeader("To", c.To)
+	m.SetHeader("Subject", "Public IP for "+provider)
+	m.SetBody("text/plain", "Previous IP: "+lastIP+" Current IP: "+currentIP)
+	d := mail.NewDialer("smtp.gmail.com", 587, c.Sender, c.Pass)
+	if err := d.DialAndSend(m); err != nil {
+		return err
+	}
+	return nil
 }

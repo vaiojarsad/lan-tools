@@ -42,58 +42,23 @@ var ddls = []string{
 	)`,
 
 	`CREATE INDEX IF NOT EXISTS ix_for_dns_state_on_isp_id ON dns_state(isp_id)`,
+
+	`CREATE TABLE IF NOT EXISTS isp_ip_change_log (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		code TEXT NOT NULL,
+		public_ip_old TEXT NOT NULL,
+		public_ip_new TEXT NOT NULL,
+		created TEXT NOT NULL
+	)`,
+
+	`CREATE INDEX IF NOT EXISTS ix_for_isp_ip_change_log_on_code ON isp_ip_change_log(code)`,
+
+	`CREATE TRIGGER trg_for_isp_after_update
+	AFTER UPDATE ON isp
+	FOR EACH ROW
+	WHEN (OLD.public_ip IS NOT NEW.public_ip)
+	BEGIN
+	    INSERT INTO isp_ip_change_log(code, public_ip_old, public_ip_new, created)
+	    VALUES (OLD.code, OLD.public_ip, NEW.public_ip, CURRENT_TIMESTAMP);
+	END`,
 }
-
-/*
-
-
-{
-        "smtp_config": {
-            "host": "smtp.gmail.com",
-            "port": 587,
-            "sender": "daniel.huespe.oso@gmail.com",
-            "password": "vbwfkmyizsfdbhbw",
-            "to": "pdcvgmh@gmail.com"
-        },
-		"isps_config": {
-			"mov": {
-				"name": "Movistar",
-				"public_ip_getter_type": "ipify",
-				"public_ip_getter_cfg": {
-					"url": "https://api64.ipify.org",
-					"ip": "64.185.227.155"
-				},
-				"hosted_domains": [
-					"19741976.xyz",
-					"riggedsystems.us"
-				]
-			},
-			"tel": {
-				"name": "Telecentro",
-				"public_ip_getter_type": "ipify",
-				"public_ip_getter_cfg": {
-					"url": "https://api64.ipify.org",
-					"ip": "173.231.16.77"
-				},
-				"hosted_domains": [
-					"19741976.xyz",
-					"riggedsystems.us"
-				]
-			}
-		},
-		"database_config": {
-			"path": "",
-			"name": "lan-tools-local.db"
-		},
-		"cloudflare_config": {
-			"token": "mCMMGvgRBbhj5uoD57ia0t0OYK2BJ3Hm29eFBbLO",
-			"domains": [
-				"19741976.xyz",
-				"riggedsystems.us"
-			]
-		}
-}
-
-
-
-*/
