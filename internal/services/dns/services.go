@@ -205,7 +205,7 @@ func SyncRecordsA(ispCode string) error {
 		}
 	}
 
-	_ = sendMail(isp.Name, isp.PublicIp, localCurrentIp)
+	_ = sendMail(isp.Name, ispCurrentIp, localCurrentIp)
 
 	dnsStateDao := dao.NewDnsStateDaoImpl()
 	states, err := dnsStateDao.GetByIspId(isp.StorageId())
@@ -274,7 +274,7 @@ func SyncRecordsA(ispCode string) error {
 	return errors.Join(errs...)
 }
 
-func sendMail(provider, lastIP, currentIP string) error {
+func sendMail(provider, currentIP, lastIP string) error {
 	c := environment.Get().ConfigManager.GetSMTPConfig()
 	m := mail.NewMessage()
 	m.SetHeader("From", c.Sender)
