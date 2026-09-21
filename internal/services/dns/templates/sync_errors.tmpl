@@ -1,0 +1,6 @@
+Errors were found while syncing A records for ISP {{.Provider}} (public IP {{.CurrentIP}}).
+
+{{len .Errors}} error(s):
+{{range $i, $e := .Errors}}
+{{inc $i}}. {{$e}}
+{{- end}}
