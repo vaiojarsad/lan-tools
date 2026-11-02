@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/go-mail/mail"
-
 	"github.com/vaiojarsad/lan-tools/internal/dao"
 	"github.com/vaiojarsad/lan-tools/internal/entities"
 	"github.com/vaiojarsad/lan-tools/internal/environment"
@@ -205,7 +203,9 @@ func SyncRecordsA(ispCode string) error {
 		}
 	}
 
-	_ = sendMail(isp.Name, ispCurrentIp, localCurrentIp)
+	if err = sendIpChangedMail(isp.Name, ispCurrentIp, localCurrentIp); err != nil {
+		environment.Get().ErrorLogger.Printf("error sending ip changed mail: %v\n", err)
+	}
 
 	dnsStateDao := dao.NewDnsStateDaoImpl()
 	states, err := dnsStateDao.GetByIspId(isp.StorageId())
@@ -271,19 +271,11 @@ func SyncRecordsA(ispCode string) error {
 
 	}
 
-	return errors.Join(errs...)
-}
-
-func sendMail(provider, currentIP, lastIP string) error {
-	c := environment.Get().ConfigManager.GetSMTPConfig()
-	m := mail.NewMessage()
-	m.SetHeader("From", c.Sender)
-	m.SetHeader("To", c.To)
-	m.SetHeader("Subject", "Public IP for "+provider)
-	m.SetBody("text/plain", "Previous IP: "+lastIP+" Current IP: "+currentIP)
-	d := mail.NewDialer("smtp.gmail.com", 587, c.Sender, c.Pass)
-	if err := d.DialAndSend(m); err != nil {
-		return err
+	if len(errs) > 0 {
+		if err = sendSyncErrorsMail(isp.Name, ispCurrentIp, errs); err != nil {
+			environment.Get().ErrorLogger.Printf("error sending sync errors mail: %v\n", err)
+		}
 	}
-	return nil
+
+	return errors.Join(errs...)
 }
