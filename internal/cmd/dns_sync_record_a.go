@@ -5,8 +5,8 @@ import (
 	"github.com/vaiojarsad/lan-tools/internal/services/dns"
 )
 
-func NewDnsSyncRecordACommand() *cobra.Command {
-	cmd := newDnsSyncRecordACommand()
+func NewDNSSyncRecordACommand() *cobra.Command {
+	cmd := newDNSSyncRecordACommand()
 	return cmd
 }
 
@@ -15,7 +15,7 @@ type dnsSyncRecordAParams struct {
 	ispCode    string
 }
 
-func newDnsSyncRecordACommand() *cobra.Command {
+func newDNSSyncRecordACommand() *cobra.Command {
 	p := dnsSyncRecordAParams{}
 	cmd := &cobra.Command{
 		Use:   "sync-record-a",
@@ -27,8 +27,8 @@ func newDnsSyncRecordACommand() *cobra.Command {
 	}
 
 	f := cmd.Flags()
-	_ = cmd.MarkFlagRequired(addDnsStateDomainNameFlag(&p.domainName, f))
-	_ = cmd.MarkFlagRequired(addDnsStateIspCodeFlag(&p.ispCode, f))
+	_ = cmd.MarkFlagRequired(addDNSStateDomainNameFlag(&p.domainName, f))
+	_ = cmd.MarkFlagRequired(addDNSStateISPCodeFlag(&p.ispCode, f))
 
 	return cmd
 }

@@ -28,7 +28,7 @@ func newCreateDomainCommand() *cobra.Command {
 
 	f := cmd.Flags()
 	_ = cmd.MarkFlagRequired(addDomainNameFlag(&p.name, f))
-	_ = cmd.MarkFlagRequired(addDomainDnsProviderCodeFlag(&p.dnsProviderCode, f))
+	_ = cmd.MarkFlagRequired(addDomainDNSProviderCodeFlag(&p.dnsProviderCode, f))
 	addDomainDescriptionFlag(&p.description, f)
 
 	return cmd

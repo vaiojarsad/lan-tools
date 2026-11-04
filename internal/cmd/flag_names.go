@@ -11,10 +11,12 @@ const (
 	nameFlag               = "name"
 	publicIpGetterType     = "pub-ip-getter-type"
 	publicIpGetterCfg      = "pub-ip-getter-cfg"
+	triggerFlag            = "trigger"
 
 	codeShortHandFlag         = "c"
 	descriptionShortHandFlag  = "d"
 	domainNameShortHandFlag   = "d"
 	nameShortHandFlag         = "n"
 	providerCodeShortHandFlag = "p"
+	triggerShortHandFlag      = "t"
 )

@@ -2,9 +2,10 @@ package backend
 
 import (
 	"context"
-	"github.com/vaiojarsad/lan-tools/internal/services/dns/provider/backend/entities"
 	"sync"
 	"time"
+
+	"github.com/vaiojarsad/lan-tools/internal/services/dns/provider/backend/entities"
 
 	"github.com/cloudflare/cloudflare-go"
 
@@ -51,16 +52,16 @@ func (s *cloudFlareDNSService) GetRecordsByTypeAndName(zone, rType, name string)
 		return nil, err
 	}
 
-	return utils.TransformSlice(records, transformDnsRecord), nil
+	return utils.TransformSlice(records, transformDNSRecord), nil
 }
 
-func transformDnsRecord(r cloudflare.DNSRecord) *entities.DNSRecord {
+func transformDNSRecord(r cloudflare.DNSRecord) *entities.DNSRecord {
 	return &entities.DNSRecord{
 		ProviderId: r.ID,
 		Type:       r.Type,
 		Name:       r.Name,
 		Content:    r.Content,
-		IspCode:    r.Comment,
+		ISPCode:    r.Comment,
 	}
 }
 
@@ -84,7 +85,7 @@ func (s *cloudFlareDNSService) getZoneID(zoneName string) (string, error) {
 	return zoneID, nil
 }
 
-func (s *cloudFlareDNSService) UpdateDnsRecord(zone string, record *entities.DNSRecord) error {
+func (s *cloudFlareDNSService) UpdateDNSRecord(zone string, record *entities.DNSRecord) error {
 	zoneId, err := s.getZoneID(zone)
 	if err != nil {
 		return err
@@ -98,7 +99,7 @@ func (s *cloudFlareDNSService) UpdateDnsRecord(zone string, record *entities.DNS
 		Name:    record.Name,
 		Content: record.Content,
 		ID:      record.ProviderId,
-		Comment: &record.IspCode,
+		Comment: &record.ISPCode,
 	})
 	if err != nil {
 		return err
@@ -107,7 +108,7 @@ func (s *cloudFlareDNSService) UpdateDnsRecord(zone string, record *entities.DNS
 	return nil
 }
 
-func (s *cloudFlareDNSService) CreateDnsRecord(zone string, record *entities.DNSRecord) error {
+func (s *cloudFlareDNSService) CreateDNSRecord(zone string, record *entities.DNSRecord) error {
 	zoneId, err := s.getZoneID(zone)
 	if err != nil {
 		return err
@@ -123,7 +124,7 @@ func (s *cloudFlareDNSService) CreateDnsRecord(zone string, record *entities.DNS
 		Type:       record.Type,
 		Name:       record.Name,
 		Content:    record.Content,
-		Comment:    record.IspCode,
+		Comment:    record.ISPCode,
 		Proxied:    &proxied,
 	})
 	if err != nil {
@@ -133,7 +134,7 @@ func (s *cloudFlareDNSService) CreateDnsRecord(zone string, record *entities.DNS
 	return nil
 }
 
-func (s *cloudFlareDNSService) GetDnsRecord(zone, recordId string) (*entities.DNSRecord, error) {
+func (s *cloudFlareDNSService) GetDNSRecord(zone, recordId string) (*entities.DNSRecord, error) {
 	zoneId, err := s.getZoneID(zone)
 	if err != nil {
 		return nil, err
@@ -151,5 +152,5 @@ func (s *cloudFlareDNSService) GetDnsRecord(zone, recordId string) (*entities.DN
 		return nil, err
 	}
 
-	return transformDnsRecord(record), nil
+	return transformDNSRecord(record), nil
 }

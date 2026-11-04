@@ -3,17 +3,19 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/vaiojarsad/lan-tools/internal/utils/loggerutils"
 
 	"github.com/vaiojarsad/lan-tools/internal/config"
 	"github.com/vaiojarsad/lan-tools/internal/environment"
+	"github.com/vaiojarsad/lan-tools/internal/events"
+	dnsevents "github.com/vaiojarsad/lan-tools/internal/services/dns/events"
 	"github.com/vaiojarsad/lan-tools/internal/utils"
+	"github.com/vaiojarsad/lan-tools/internal/utils/loggerutils"
 )
 
 func NewLanToolsRootCommand() *cobra.Command {
 	cobra.MousetrapHelpText = ""
 	cmd := newLanToolsRootCommand()
-	cmd.AddCommand(NewDnsRootCommand())
+	cmd.AddCommand(NewDNSRootCommand())
 	cmd.AddCommand(NewISPRootCommand())
 	cmd.AddCommand(NewCreateRootCommand())
 
@@ -42,6 +44,8 @@ func loadCfg(c *cobra.Command, _ []string) error {
 	env := environment.Create()
 	env.ErrorLogger = loggerutils.GetStdErrorLogger()
 	env.OutputLogger = loggerutils.GetStdOutputLogger()
+	env.IPChangedPublisher = events.NewInMemoryBus[*events.IPChanged]()
+	env.IPChangedPublisher.Subscribe(dnsevents.HandleISPPublicIPChanged)
 	cm, err := config.Create(configFile)
 	if err != nil {
 		return err

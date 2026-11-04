@@ -3,19 +3,21 @@ package dao
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+
 	"github.com/vaiojarsad/lan-tools/internal/database"
 	"github.com/vaiojarsad/lan-tools/internal/entities"
 	"github.com/vaiojarsad/lan-tools/internal/utils"
 )
 
-func NewDnsProviderDaoImpl() DnsProviderDao {
-	return &databaseSqlDnsProviderDaoImpl{}
+func NewDNSProviderDaoImpl() DNSProviderDao {
+	return &databaseSqlDNSProviderDaoImpl{}
 }
 
-type databaseSqlDnsProviderDaoImpl struct {
+type databaseSqlDNSProviderDaoImpl struct {
 }
 
-func (d *databaseSqlDnsProviderDaoImpl) Insert(e *entities.DnsProvider) error {
+func (d *databaseSqlDNSProviderDaoImpl) Insert(e *entities.DNSProvider) error {
 	db, err := database.Open()
 	if err != nil {
 		return err
@@ -41,7 +43,7 @@ func (d *databaseSqlDnsProviderDaoImpl) Insert(e *entities.DnsProvider) error {
 	return nil
 }
 
-func (d *databaseSqlDnsProviderDaoImpl) GetByCode(code string) (*entities.DnsProvider, error) {
+func (d *databaseSqlDNSProviderDaoImpl) GetByCode(code string) (*entities.DNSProvider, error) {
 	db, err := database.Open()
 	if err != nil {
 		return nil, err
@@ -59,7 +61,7 @@ func (d *databaseSqlDnsProviderDaoImpl) GetByCode(code string) (*entities.DnsPro
 
 	err = stmt.QueryRow(code).Scan(&id, &name, &serviceType, &serviceCfgStr)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
@@ -71,10 +73,10 @@ func (d *databaseSqlDnsProviderDaoImpl) GetByCode(code string) (*entities.DnsPro
 		return nil, err
 	}
 
-	return entities.NewDnsProvider(id, code, name, serviceType, serviceCfg), nil
+	return entities.NewDNSProvider(id, code, name, serviceType, serviceCfg), nil
 }
 
-func (d *databaseSqlDnsProviderDaoImpl) GetById(id int64) (*entities.DnsProvider, error) {
+func (d *databaseSqlDNSProviderDaoImpl) GetById(id int64) (*entities.DNSProvider, error) {
 	db, err := database.Open()
 	if err != nil {
 		return nil, err
@@ -91,7 +93,7 @@ func (d *databaseSqlDnsProviderDaoImpl) GetById(id int64) (*entities.DnsProvider
 
 	err = stmt.QueryRow(id).Scan(&code, &name, &serviceType, &serviceCfgStr)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
@@ -103,5 +105,5 @@ func (d *databaseSqlDnsProviderDaoImpl) GetById(id int64) (*entities.DnsProvider
 		return nil, err
 	}
 
-	return entities.NewDnsProvider(id, code, name, serviceType, serviceCfg), nil
+	return entities.NewDNSProvider(id, code, name, serviceType, serviceCfg), nil
 }

@@ -3,36 +3,51 @@ package cmd
 import (
 	//"fmt"
 
+	"errors"
+
 	"github.com/spf13/cobra"
+	"github.com/vaiojarsad/lan-tools/internal/environment"
+	"github.com/vaiojarsad/lan-tools/internal/events"
 	"github.com/vaiojarsad/lan-tools/internal/services/isp"
 	//"github.com/vaiojarsad/lan-tools/internal/environment"
 	//"github.com/vaiojarsad/lan-tools/internal/isp"
 )
 
-func NewIspRefreshPublicIpCommand() *cobra.Command {
-	cmd := newIspRefreshPublicIpCommand()
+func NewISPUpdatePublicIpCommand() *cobra.Command {
+	cmd := newISPUpdatePublicIpCommand()
 	return cmd
 }
 
-type ispRefreshPublicIpParams struct {
-	code string
+type ispUpdatePublicIpParams struct {
+	code    string
+	trigger bool
 }
 
-func newIspRefreshPublicIpCommand() *cobra.Command {
-	p := ispRefreshPublicIpParams{}
+func newISPUpdatePublicIpCommand() *cobra.Command {
+	p := ispUpdatePublicIpParams{}
 	cmd := &cobra.Command{
-		Use:   "refresh-public-ip",
-		Short: "Refresh ISP's public IP",
+		Use:   "update-public-ip",
+		Short: "Update ISP's public IP",
 		Long:  "Gets the public ip from the ISP and saves it to the local DB",
-		RunE:  ispRefreshPublicIpCommand(&p),
+		RunE:  ispUpdatePublicIpCommand(&p),
 	}
 	f := cmd.Flags()
-	_ = cmd.MarkFlagRequired(addIspCodeFlag(&p.code, f))
+	_ = cmd.MarkFlagRequired(addISPCodeFlag(&p.code, f))
+	_ = cmd.MarkFlagRequired(addTriggerRelatedFlag(&p.trigger, f))
 	return cmd
 }
 
-func ispRefreshPublicIpCommand(p *ispRefreshPublicIpParams) func(cmd *cobra.Command, args []string) error {
+func ispUpdatePublicIpCommand(p *ispUpdatePublicIpParams) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		return isp.RefreshIspPublicIp(p.code)
+		oldIP, newIP, err := isp.UpdateISPPublicIp(p.code)
+		if !p.trigger || oldIP == newIP {
+			return err
+		}
+		errs := environment.Get().IPChangedPublisher.Publish(&events.IPChanged{
+			ISPCode: p.code,
+			OldIP:   oldIP,
+			NewIP:   newIP,
+		})
+		return errors.Join(err, errs)
 	}
 }

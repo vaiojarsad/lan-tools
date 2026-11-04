@@ -5,12 +5,12 @@ import (
 )
 
 func NewISPRootCommand() *cobra.Command {
-	cmd := newIspRootCommand()
-	cmd.AddCommand(NewIspRefreshPublicIpCommand())
+	cmd := newISPRootCommand()
+	cmd.AddCommand(NewISPUpdatePublicIpCommand())
 	return cmd
 }
 
-func newIspRootCommand() *cobra.Command {
+func newISPRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "isp",
 		Short: "ISP management",

@@ -2,6 +2,7 @@ package dao
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/vaiojarsad/lan-tools/internal/database"
@@ -9,12 +10,12 @@ import (
 	"github.com/vaiojarsad/lan-tools/internal/utils"
 )
 
-func NewDomainDaoImpl(dnsProviderDao DnsProviderDao) DomainDao {
+func NewDomainDaoImpl(dnsProviderDao DNSProviderDao) DomainDao {
 	return &databaseSqlDomainDaoImpl{dnsProviderDao: dnsProviderDao}
 }
 
 type databaseSqlDomainDaoImpl struct {
-	dnsProviderDao DnsProviderDao
+	dnsProviderDao DNSProviderDao
 }
 
 func (d *databaseSqlDomainDaoImpl) Insert(e *entities.Domain) error {
@@ -30,7 +31,7 @@ func (d *databaseSqlDomainDaoImpl) Insert(e *entities.Domain) error {
 	}
 	defer utils.Close(stmt)
 
-	_, err = stmt.Exec(e.Name, e.Description, e.DnsProviderStorageId())
+	_, err = stmt.Exec(e.Name, e.Description, e.DNSProviderStorageId())
 	if err != nil {
 		return err
 	}
@@ -56,7 +57,7 @@ func (d *databaseSqlDomainDaoImpl) GetByName(name string) (*entities.Domain, err
 
 	err = stmt.QueryRow(name).Scan(&id, &description, &dnsProviderId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
@@ -88,7 +89,7 @@ func (d *databaseSqlDomainDaoImpl) GetById(id int64) (*entities.Domain, error) {
 
 	err = stmt.QueryRow(id).Scan(&name, &description, &dnsProviderId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err

@@ -6,20 +6,20 @@ import (
 	"github.com/vaiojarsad/lan-tools/internal/services/isp"
 )
 
-func NewCreateIspCommand() *cobra.Command {
-	cmd := newCreateIspCommand()
+func NewCreateISPCommand() *cobra.Command {
+	cmd := newCreateISPCommand()
 	return cmd
 }
 
-type createIspParams struct {
+type createISPParams struct {
 	code               string
 	name               string
 	publicIpGetterType string
 	publicIpGetterCfg  map[string]string
 }
 
-func newCreateIspCommand() *cobra.Command {
-	p := createIspParams{}
+func newCreateISPCommand() *cobra.Command {
+	p := createISPParams{}
 	cmd := &cobra.Command{
 		Use:   "isp",
 		Short: "Creates a new ISP",
@@ -27,14 +27,14 @@ func newCreateIspCommand() *cobra.Command {
 		RunE:  ispCreateCommand(&p),
 	}
 	f := cmd.Flags()
-	_ = cmd.MarkFlagRequired(addIspCodeFlag(&p.code, f))
-	_ = cmd.MarkFlagRequired(addIspNameFlag(&p.name, f))
+	_ = cmd.MarkFlagRequired(addISPCodeFlag(&p.code, f))
+	_ = cmd.MarkFlagRequired(addISPNameFlag(&p.name, f))
 	addPublicIpGetterTypeFlag(&p.publicIpGetterType, f)
 	addPublicIpGetterCfgFlag(&p.publicIpGetterCfg, f)
 	return cmd
 }
 
-func ispCreateCommand(p *createIspParams) func(cmd *cobra.Command, args []string) error {
+func ispCreateCommand(p *createISPParams) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		return isp.Create(p.code, p.name, p.publicIpGetterType, p.publicIpGetterCfg)
 	}

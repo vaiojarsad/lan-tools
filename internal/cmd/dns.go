@@ -2,14 +2,14 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-func NewDnsRootCommand() *cobra.Command {
-	cmd := newDnsRootCommand()
-	cmd.AddCommand(NewDnsSyncRecordACommand())
-	cmd.AddCommand(NewDnsSyncRecordsAForIspCommand())
+func NewDNSRootCommand() *cobra.Command {
+	cmd := newDNSRootCommand()
+	cmd.AddCommand(NewDNSSyncRecordACommand())
+	cmd.AddCommand(NewDNSSyncRecordsAForISPCommand())
 	return cmd
 }
 
-func newDnsRootCommand() *cobra.Command {
+func newDNSRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dns",
 		Short: "Domain name service utilities",

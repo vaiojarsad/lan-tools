@@ -2,9 +2,9 @@ package entities
 
 import "time"
 
-func NewIsp(storageId int64, code, name, publicIpGetterType string, publicIpGetterCfg map[string]string, publicIp string,
-	publicIpModTime time.Time) *Isp {
-	return &Isp{
+func NewISP(storageId int64, code, name, publicIpGetterType string, publicIpGetterCfg map[string]string, publicIp string,
+	publicIpModTime time.Time) *ISP {
+	return &ISP{
 		storageId:          storageId,
 		Code:               code,
 		Name:               name,
@@ -15,7 +15,7 @@ func NewIsp(storageId int64, code, name, publicIpGetterType string, publicIpGett
 	}
 }
 
-type Isp struct {
+type ISP struct {
 	storageId          int64
 	uuid               string
 	Code               string
@@ -26,10 +26,10 @@ type Isp struct {
 	PublicIpModTime    time.Time
 }
 
-func (i *Isp) StorageId() int64 {
+func (i *ISP) StorageId() int64 {
 	return i.storageId
 }
 
-func (i *Isp) UUID() string {
+func (i *ISP) UUID() string {
 	return i.uuid
 }

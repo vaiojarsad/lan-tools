@@ -8,8 +8,8 @@ import (
 )
 
 func Create(code, name, serviceType string, serviceCfg map[string]string) error {
-	dnsProviderDao := dao.NewDnsProviderDaoImpl()
-	dnsProvider := &entities.DnsProvider{
+	dnsProviderDao := dao.NewDNSProviderDaoImpl()
+	dnsProvider := &entities.DNSProvider{
 		Code:        code,
 		Name:        name,
 		ServiceType: serviceType,

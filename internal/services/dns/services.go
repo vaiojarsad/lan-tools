@@ -9,47 +9,96 @@ import (
 	"github.com/vaiojarsad/lan-tools/internal/environment"
 	"github.com/vaiojarsad/lan-tools/internal/services/dns/provider/backend"
 	backEntities "github.com/vaiojarsad/lan-tools/internal/services/dns/provider/backend/entities"
-	stateServices "github.com/vaiojarsad/lan-tools/internal/services/dns/state"
 	ispServices "github.com/vaiojarsad/lan-tools/internal/services/isp"
 )
 
-func CreateRecordA(domainName, ispCode string) error {
-	domain, isp, err := stateServices.GetKeyEntities(domainName, ispCode)
+func getDomainByName(domainName string) (*entities.Domain, error) {
+	domainDao := dao.NewDomainDaoImpl(dao.NewDNSProviderDaoImpl())
+	domain, err := domainDao.GetByName(domainName)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	if domain == nil {
+		return nil, fmt.Errorf("domain not found for name: %s", domainName)
+	}
+	return domain, nil
+}
+
+func getISPByCode(ispCode string) (*entities.ISP, error) {
+	ispDao := dao.NewISPDaoImpl()
+	isp, err := ispDao.GetByCode(ispCode)
+	if err != nil {
+		return nil, err
+	}
+
+	if isp == nil {
+		return nil, fmt.Errorf("isp not found for code: %s", ispCode)
+	}
+	return isp, nil
+}
+
+func getCurrentPublicIpForISP(isp *entities.ISP) (string, error) {
 	ispCurrentIp, err := ispServices.GetPublicIP(isp.PublicIpGetterType, isp.PublicIpGetterCfg)
+	if err != nil {
+		return "", err
+	}
+	var localCurrentIp = isp.PublicIp
+	if ispCurrentIp != localCurrentIp {
+		environment.Get().OutputLogger.Printf("public ip (%s) from provider (%s) and local cache match.\n", ispCurrentIp, isp.Name)
+		err = ispServices.UpdateISPPublicIP(isp, ispCurrentIp)
+		if err != nil {
+			environment.Get().ErrorLogger.Printf("error trying to update isp public IP in local DB: %v\n", err)
+		}
+	} else {
+		environment.Get().OutputLogger.Printf("public ip (%s) from provider (%s) and local cache (%s) differ.\n", ispCurrentIp, isp.Name, isp.PublicIp)
+	}
+	return ispCurrentIp, nil
+}
+
+func updateOnIpChange(dnsISP *entities.DNSISP, isp *entities.ISP, domain *entities.Domain, newIP string) error {
+	if dnsISP.DNSProviderRecordId == entities.Unknown {
+		return fmt.Errorf("dns-isp relation for domain %s and isp %s doesn't have a valid provider record Id", domain.Name, isp.Name)
+	}
+
+	b, err := backend.NewDNSProviderBackendService(domain.DNSProvider.ServiceType, domain.DNSProvider.ServiceCfg)
+	if err != nil {
+		return fmt.Errorf("error getting backend service for %s: %w", domain.DNSProvider.Name, err)
+	}
+
+	record, err := b.GetDNSRecord(domain.Name, dnsISP.DNSProviderRecordId)
+	if err != nil {
+		return fmt.Errorf("error getting dns record from dns provider: %w", err)
+	}
+
+	if record.ISPCode != isp.Code || record.Content != newIP {
+		record.ISPCode = isp.Code
+		record.Content = newIP
+		return b.UpdateDNSRecord(domain.Name, record)
+	}
+
+	return nil
+}
+
+func CreateRecordA(domainName, ispCode string) error {
+	domain, err := getDomainByName(domainName)
+	if err != nil {
+		return fmt.Errorf("error searching domain by name: %w", err)
+	}
+
+	isp, err := getISPByCode(ispCode)
+	if err != nil {
+		return fmt.Errorf("error searching isp by code: %w", err)
+	}
+
+	ispCurrentIp, err := getCurrentPublicIpForISP(isp)
 	if err != nil {
 		return fmt.Errorf("error retrieving public IP for ISP: %w", err)
 	}
 
-	var localCurrentIp = isp.PublicIp
-	if ispCurrentIp != localCurrentIp {
-		err = ispServices.UpdateIspPublicIP(isp, ispCurrentIp)
-		if err != nil {
-			environment.Get().ErrorLogger.Printf("error trying to update isp public IP in local DB: %v\n", err)
-			// Proceed even if we fail to update locally
-		}
-	}
-
-	dnsStateDao := dao.NewDnsStateDaoImpl()
-	state, err := dnsStateDao.GetByDomainAndIspIds(domain.StorageId(), isp.StorageId())
+	b, err := backend.NewDNSProviderBackendService(domain.DNSProvider.ServiceType, domain.DNSProvider.ServiceCfg)
 	if err != nil {
-		return fmt.Errorf("error searching domain isp configuration for domain %state and isp %state: %w", domain.Name, isp.Name, err)
-	}
-
-	if state != nil {
-		// The ip we got from isp.GetPublicIP matches the one we have in the local DB as the last IP we informed about to DNS provider.
-		// Strictly speaking the IP might have been externally altered in the dns provider. By default, we assume it wasn't the case.
-		if state.DnsProviderCurrentIp == ispCurrentIp {
-			return nil
-		}
-	}
-
-	b, err := backend.NewDNSProviderBackendService(domain.DnsProvider.ServiceType, domain.DnsProvider.ServiceCfg)
-	if err != nil {
-		return fmt.Errorf("error getting backend service for %s: %w", domain.DnsProvider.Name, err)
+		return fmt.Errorf("error getting backend service for %s: %w", domain.DNSProvider.Name, err)
 	}
 
 	records, err := b.GetRecordsByTypeAndName(domain.Name, "A", domain.Name)
@@ -57,218 +106,113 @@ func CreateRecordA(domainName, ispCode string) error {
 		return fmt.Errorf("error getting dns records from dns provider: %w", err)
 	}
 
-	record, err := WrapWithSanityCheck(LookupRecord)(records, state, isp, ispCurrentIp, localCurrentIp)
-	if err != nil {
-		if errors.Is(err, ErrIspMismatch) {
-			return fmt.Errorf("inconsistency error: %w", err)
-		}
-		if errors.Is(err, ErrIspCodeNotSet) {
-			environment.Get().OutputLogger.Printf("unowned dns provider record (id %s). Will be updated. \n", record.ProviderId)
-		} else {
-			return err
-		}
-	}
-
+	record := LookupRecordByISP(records, isp)
 	if record == nil {
 		record = &backEntities.DNSRecord{
 			Type:    "A",
 			Name:    domainName,
 			Content: ispCurrentIp,
-			IspCode: isp.Code,
+			ISPCode: isp.Code,
 		}
-		err = b.CreateDnsRecord(domain.Name, record)
+		err = b.CreateDNSRecord(domain.Name, record)
 	} else {
-		if record.IspCode != isp.Code || record.Content != ispCurrentIp {
-			record.IspCode = isp.Code
+		if record.ISPCode != isp.Code || record.Content != ispCurrentIp {
+			record.ISPCode = isp.Code
 			record.Content = ispCurrentIp
-			err = b.UpdateDnsRecord(domain.Name, record)
+			err = b.UpdateDNSRecord(domain.Name, record)
 		}
 	}
 	if err != nil {
 		return err
 	}
 
-	if state != nil {
-		state.DnsProviderRecordId = record.ProviderId
-		state.DnsProviderSyncStatus = entities.Synced
-		state.DnsProviderCurrentIp = ispCurrentIp
-		err = dnsStateDao.UpdateDnsProviderInfo(state)
+	dnsISPDao := dao.NewDNSISPDaoImpl()
+	dnsISP, err := dnsISPDao.GetByDomainAndISPIds(domain.StorageId(), isp.StorageId())
+	if err != nil {
+		return err
+	}
+
+	if dnsISP != nil {
+		if dnsISP.DNSProviderRecordId != record.ProviderId {
+			dnsISP.DNSProviderRecordId = record.ProviderId
+			err = dnsISPDao.UpdateDNSProviderInfo(dnsISP)
+		}
 	} else {
-		err = dnsStateDao.Insert(&entities.DnsState{
-			DomainId:              domain.StorageId(),
-			IspId:                 isp.StorageId(),
-			DnsProviderCurrentIp:  ispCurrentIp,
-			DnsProviderRecordId:   record.ProviderId,
-			DnsProviderSyncStatus: entities.Synced,
+		err = dnsISPDao.Insert(&entities.DNSISP{
+			DomainId:            domain.StorageId(),
+			ISPId:               isp.StorageId(),
+			DNSProviderRecordId: record.ProviderId,
 		})
 	}
+
 	return err
 }
 
 func SyncRecordA(domainName, ispCode string) error {
-	domain, isp, err := stateServices.GetKeyEntities(domainName, ispCode)
+	domain, err := getDomainByName(domainName)
 	if err != nil {
-		return err
+		return fmt.Errorf("error searching domain by name: %w", err)
 	}
 
-	ispCurrentIp, err := ispServices.GetPublicIP(isp.PublicIpGetterType, isp.PublicIpGetterCfg)
-	if err != nil {
-		return fmt.Errorf("error retrieving public IP for ISP: %w", err)
-	}
-
-	var localCurrentIp = isp.PublicIp
-	if ispCurrentIp == localCurrentIp {
-		environment.Get().OutputLogger.Printf("public ip got from provider (%s) and the one locally saved match.\n", ispCurrentIp)
-	} else {
-		err = ispServices.UpdateIspPublicIP(isp, ispCurrentIp)
-		if err != nil {
-			environment.Get().ErrorLogger.Printf("error trying to update isp public IP in local DB: %v\n", err)
-			// Proceed even if we fail to update locally
-		}
-	}
-
-	dnsStateDao := dao.NewDnsStateDaoImpl()
-	state, err := dnsStateDao.GetByDomainAndIspIds(domain.StorageId(), isp.StorageId())
-	if err != nil {
-		return fmt.Errorf("error searching dns state for domain %s and isp %s: %w", domain.Name, isp.Name, err)
-	}
-
-	if state == nil {
-		return fmt.Errorf("state entry for domain %s and isp %s wasn't found", domain.Name, isp.Name)
-	}
-
-	if state.DnsProviderRecordId == entities.Unknown {
-		return fmt.Errorf("state entry for domain %s and isp %s doesn't have a valid provider record Id", domain.Name, isp.Name)
-	}
-
-	if ispCurrentIp == state.DnsProviderCurrentIp {
-		environment.Get().OutputLogger.Printf("public ip got from provider (%s) and the one from local state match. No further action will be taken.\n", ispCurrentIp)
-		return nil
-	}
-
-	environment.Get().OutputLogger.Printf("public ip got from provider (%s) and the one from local state (%s) differ. "+
-		"Trying to update...\n", ispCurrentIp, state.DnsProviderCurrentIp)
-
-	b, err := backend.NewDNSProviderBackendService(domain.DnsProvider.ServiceType, domain.DnsProvider.ServiceCfg)
-	if err != nil {
-		return fmt.Errorf("error getting backend service for %s: %w", domain.DnsProvider.Name, err)
-	}
-
-	record, err := b.GetDnsRecord(domain.Name, state.DnsProviderRecordId)
-	if err != nil {
-		return fmt.Errorf("error getting dns record from dns provider: %w", err)
-	}
-
-	if record.IspCode != isp.Code {
-		return fmt.Errorf("inconsistency error: %w", ErrIspMismatch)
-	}
-
-	record.Content = ispCurrentIp
-	err = b.UpdateDnsRecord(domain.Name, record)
-	if err != nil {
-		return err
-	}
-
-	state.DnsProviderSyncStatus = entities.Synced
-	state.DnsProviderCurrentIp = ispCurrentIp
-	err = dnsStateDao.UpdateDnsProviderInfo(state)
-
-	return err
-}
-
-func SyncRecordsA(ispCode string) error {
-	ispDao := dao.NewISPDaoImpl()
-	isp, err := ispDao.GetByCode(ispCode)
+	isp, err := getISPByCode(ispCode)
 	if err != nil {
 		return fmt.Errorf("error searching isp by code: %w", err)
 	}
 
-	if isp == nil {
-		return fmt.Errorf("isp not found for code: %s", ispCode)
-	}
-
-	ispCurrentIp, err := ispServices.GetPublicIP(isp.PublicIpGetterType, isp.PublicIpGetterCfg)
+	ispCurrentIp, err := getCurrentPublicIpForISP(isp)
 	if err != nil {
 		return fmt.Errorf("error retrieving public IP for ISP: %w", err)
 	}
 
-	var localCurrentIp = isp.PublicIp
-	if ispCurrentIp == localCurrentIp {
-		environment.Get().OutputLogger.Printf("public ip got from provider (%s) and the one locally saved match.\n", ispCurrentIp)
-	} else {
-		err = ispServices.UpdateIspPublicIP(isp, ispCurrentIp)
-		if err != nil {
-			environment.Get().ErrorLogger.Printf("error trying to update isp public IP in local DB: %v\n", err)
-			// Proceed even if we fail to update locally
-		}
+	dnsISPDao := dao.NewDNSISPDaoImpl()
+	dnsISP, err := dnsISPDao.GetByDomainAndISPIds(domain.StorageId(), isp.StorageId())
+	if err != nil {
+		return fmt.Errorf("error searching dns-isp relation for domain %s and isp %s: %w", domain.Name, isp.Name, err)
 	}
 
-	if err = sendIpChangedMail(isp.Name, ispCurrentIp, localCurrentIp); err != nil {
+	if dnsISP == nil {
+		return fmt.Errorf("dns-isp relation entry for domain %s and isp %s wasn't found", domain.Name, isp.Name)
+	}
+
+	return updateOnIpChange(dnsISP, isp, domain, ispCurrentIp)
+}
+
+func SyncRecordsA(ispCode string) error {
+	isp, err := getISPByCode(ispCode)
+	if err != nil {
+		return fmt.Errorf("error searching isp by code: %w", err)
+	}
+
+	ispCurrentIp, err := getCurrentPublicIpForISP(isp)
+	if err != nil {
+		return fmt.Errorf("error retrieving public IP for ISP: %w", err)
+	}
+
+	if err = sendIpChangedMail(isp.Name, ispCurrentIp, isp.PublicIp); err != nil {
 		environment.Get().ErrorLogger.Printf("error sending ip changed mail: %v\n", err)
 	}
 
-	dnsStateDao := dao.NewDnsStateDaoImpl()
-	states, err := dnsStateDao.GetByIspId(isp.StorageId())
+	dnsISPDao := dao.NewDNSISPDaoImpl()
+	dnsISPs, err := dnsISPDao.GetByISPId(isp.StorageId())
 	if err != nil {
-		return fmt.Errorf("error searching dns states for isp %s: %w", isp.Name, err)
+		return fmt.Errorf("error searching dns-isp relations for isp %s: %w", isp.Name, err)
 	}
 
 	var errs []error
-	domainDao := dao.NewDomainDaoImpl(dao.NewDnsProviderDaoImpl())
+	domainDao := dao.NewDomainDaoImpl(dao.NewDNSProviderDaoImpl())
 
-	for _, state := range states {
-		domain, err := domainDao.GetById(state.DomainId)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("error searching domain by id (%d): %w", state.DomainId, err))
+	for _, dnsISP := range dnsISPs {
+		domain, err2 := domainDao.GetById(dnsISP.DomainId)
+		if err2 != nil {
+			errs = append(errs, fmt.Errorf("error searching domain by id (%d): %w", dnsISP.DomainId, err2))
 			continue
 		}
 
-		if state.DnsProviderRecordId == entities.Unknown {
-			errs = append(errs, fmt.Errorf("state entry for domain %s and isp %s doesn't have a valid provider record Id", domain.Name, isp.Name))
+		err2 = updateOnIpChange(dnsISP, isp, domain, ispCurrentIp)
+		if err2 != nil {
+			errs = append(errs, fmt.Errorf("error trying to update ip for domain %s and isp %s: %w", domain.Name, isp.Name, err2))
 			continue
 		}
-
-		if ispCurrentIp == state.DnsProviderCurrentIp {
-			environment.Get().OutputLogger.Printf("public ip got from provider (%s) and the one from local state match. "+
-				"No further action will be taken for this domain (%s).\n", ispCurrentIp, domain.Name)
-			continue
-		}
-
-		environment.Get().OutputLogger.Printf("public ip got from provider (%s) and the one from local state (%s) differ. "+
-			"Trying to update...\n", ispCurrentIp, state.DnsProviderCurrentIp)
-
-		b, err := backend.NewDNSProviderBackendService(domain.DnsProvider.ServiceType, domain.DnsProvider.ServiceCfg)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("error getting backend service for %s: %w", domain.DnsProvider.Name, err))
-			continue
-		}
-
-		record, err := b.GetDnsRecord(domain.Name, state.DnsProviderRecordId)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("error getting dns record from dns provider: %w", err))
-			continue
-		}
-
-		if record.IspCode != isp.Code {
-			errs = append(errs, fmt.Errorf("inconsistency error: %w", ErrIspMismatch))
-			continue
-		}
-
-		record.Content = ispCurrentIp
-		err = b.UpdateDnsRecord(domain.Name, record)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
-		state.DnsProviderSyncStatus = entities.Synced
-		state.DnsProviderCurrentIp = ispCurrentIp
-		err = dnsStateDao.UpdateDnsProviderInfo(state)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-
 	}
 
 	if len(errs) > 0 {

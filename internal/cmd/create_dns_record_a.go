@@ -6,18 +6,18 @@ import (
 	"github.com/vaiojarsad/lan-tools/internal/services/dns"
 )
 
-func NewCreateDnsRecordACommand() *cobra.Command {
-	cmd := newCreateDnsRecordACommand()
+func NewCreateDNSRecordACommand() *cobra.Command {
+	cmd := newCreateDNSRecordACommand()
 	return cmd
 }
 
-type createDnsRecordAParams struct {
+type createDNSRecordAParams struct {
 	domainName string
 	ispCode    string
 }
 
-func newCreateDnsRecordACommand() *cobra.Command {
-	p := createDnsRecordAParams{}
+func newCreateDNSRecordACommand() *cobra.Command {
+	p := createDNSRecordAParams{}
 	cmd := &cobra.Command{
 		Use:   "dns-record-a",
 		Short: "Creates a type A dns record for a domain-isp tuple",
@@ -25,17 +25,17 @@ func newCreateDnsRecordACommand() *cobra.Command {
 			"associated to the domain. All related local structures will be updated accordingly whenever necessary. " +
 			"Even if there is no local dns state for the domain-isp, we assume that might already exists a related record " +
 			"on provider side.",
-		RunE: createDnsRecordACommand(&p),
+		RunE: createDNSRecordACommand(&p),
 	}
 
 	f := cmd.Flags()
-	_ = cmd.MarkFlagRequired(addDnsStateDomainNameFlag(&p.domainName, f))
-	_ = cmd.MarkFlagRequired(addDnsStateIspCodeFlag(&p.ispCode, f))
+	_ = cmd.MarkFlagRequired(addDNSStateDomainNameFlag(&p.domainName, f))
+	_ = cmd.MarkFlagRequired(addDNSStateISPCodeFlag(&p.ispCode, f))
 
 	return cmd
 }
 
-func createDnsRecordACommand(p *createDnsRecordAParams) func(cmd *cobra.Command, args []string) error {
+func createDNSRecordACommand(p *createDNSRecordAParams) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		return dns.CreateRecordA(p.domainName, p.ispCode)
 	}

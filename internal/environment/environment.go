@@ -5,13 +5,15 @@ import (
 	"sync"
 
 	"github.com/vaiojarsad/lan-tools/internal/config"
+	"github.com/vaiojarsad/lan-tools/internal/events"
 )
 
 // Environment holds the execution context
 type Environment struct {
-	ConfigManager config.Manager
-	ErrorLogger   *log.Logger
-	OutputLogger  *log.Logger
+	ConfigManager      config.Manager
+	ErrorLogger        *log.Logger
+	OutputLogger       *log.Logger
+	IPChangedPublisher *events.InMemoryBus[*events.IPChanged]
 }
 
 var (

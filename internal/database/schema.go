@@ -30,18 +30,16 @@ var ddls = []string{
 
 	`CREATE INDEX IF NOT EXISTS ix_for_domain_on_dns_provider_id ON domain(dns_provider_id)`,
 
-	`CREATE TABLE IF NOT EXISTS dns_state (
+	`CREATE TABLE IF NOT EXISTS dns_isp (
 		domain_id INTEGER,
 		isp_id INTEGER,
-		dns_provider_current_ip TEXT,
 		dns_provider_record_id TEXT,
-		dns_provider_sync_status TEXT NOT NULL,
 		PRIMARY KEY (domain_id, isp_id),
 		FOREIGN KEY (domain_id) REFERENCES domain(id),
 		FOREIGN KEY (isp_id) REFERENCES isp(id)
 	)`,
 
-	`CREATE INDEX IF NOT EXISTS ix_for_dns_state_on_isp_id ON dns_state(isp_id)`,
+	`CREATE INDEX IF NOT EXISTS ix_for_dns_isp_on_isp_id ON dns_isp(isp_id)`,
 
 	`CREATE TABLE IF NOT EXISTS isp_ip_change_log (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,

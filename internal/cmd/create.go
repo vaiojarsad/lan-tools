@@ -6,10 +6,9 @@ func NewCreateRootCommand() *cobra.Command {
 	cmd := newCreateRootCommand()
 	cmd.AddCommand(NewCreateDatabaseCommand())
 	cmd.AddCommand(NewCreateDomainCommand())
-	cmd.AddCommand(NewCreateIspCommand())
-	cmd.AddCommand(NewCreateDnsStateCommand())
-	cmd.AddCommand(NewCreateDnsProviderCommand())
-	cmd.AddCommand(NewCreateDnsRecordACommand())
+	cmd.AddCommand(NewCreateISPCommand())
+	cmd.AddCommand(NewCreateDNSProviderCommand())
+	cmd.AddCommand(NewCreateDNSRecordACommand())
 	return cmd
 }
 

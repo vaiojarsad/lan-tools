@@ -1,7 +1,7 @@
 package entities
 
-func NewDnsProvider(storageId int64, code, name, serviceType string, serviceCfg map[string]string) *DnsProvider {
-	return &DnsProvider{
+func NewDNSProvider(storageId int64, code, name, serviceType string, serviceCfg map[string]string) *DNSProvider {
+	return &DNSProvider{
 		storageId:   storageId,
 		Code:        code,
 		Name:        name,
@@ -10,7 +10,7 @@ func NewDnsProvider(storageId int64, code, name, serviceType string, serviceCfg 
 	}
 }
 
-type DnsProvider struct {
+type DNSProvider struct {
 	storageId   int64
 	Code        string
 	Name        string
@@ -18,6 +18,6 @@ type DnsProvider struct {
 	ServiceCfg  map[string]string
 }
 
-func (s *DnsProvider) StorageId() int64 {
+func (s *DNSProvider) StorageId() int64 {
 	return s.storageId
 }

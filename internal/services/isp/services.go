@@ -12,7 +12,7 @@ import (
 func Create(code, name, publicIpGetterType string, publicIpGetterCfg map[string]string) error {
 	ispDao := dao.NewISPDaoImpl()
 
-	isp := &entities.Isp{
+	isp := &entities.ISP{
 		Code:               code,
 		Name:               name,
 		PublicIpGetterType: publicIpGetterType,
@@ -23,38 +23,43 @@ func Create(code, name, publicIpGetterType string, publicIpGetterCfg map[string]
 	if publicIpGetterType != "" {
 		currentIp, err := GetPublicIP(publicIpGetterType, publicIpGetterCfg)
 		if err != nil {
-			return fmt.Errorf("error retrieving public IP for Isp: %w", err)
+			return fmt.Errorf("error retrieving public IP for ISP: %w", err)
 		}
 		isp.PublicIp = currentIp
 		isp.PublicIpModTime = time.Now()
 	}
 	if err := ispDao.Insert(isp); err != nil {
-		return fmt.Errorf("error inserting isp: %w", err)
+		return fmt.Errorf("error inserting ISP: %w", err)
 	}
 	return nil
 }
 
-func RefreshIspPublicIp(ispCode string) error {
+func UpdateISPPublicIp(ispCode string) (string, string, error) {
 	ispDao := dao.NewISPDaoImpl()
 
 	isp, err := ispDao.GetByCode(ispCode)
 	if err != nil {
-		return fmt.Errorf("error looking up for Isp by code: %w", err)
+		return "", "", fmt.Errorf("error looking up for ISP by code: %w", err)
 	}
 
 	if isp == nil {
-		return fmt.Errorf("there is no Isp with code %s", ispCode)
+		return "", "", fmt.Errorf("there is no ISP with code %s", ispCode)
 	}
 
 	ip, err := GetPublicIP(isp.PublicIpGetterType, isp.PublicIpGetterCfg)
 	if err != nil {
-		return fmt.Errorf("error retrieving public IP for Isp: %w", err)
+		return isp.PublicIp, "", fmt.Errorf("error retrieving public IP for ISP: %w", err)
 	}
 
-	return UpdateIspPublicIP(isp, ip)
+	if ip == isp.PublicIp {
+		environment.Get().OutputLogger.Printf("local and current public ip values for %s are equal. %s\n", isp.Name, ip)
+		return isp.PublicIp, ip, nil
+	}
+
+	return isp.PublicIp, ip, UpdateISPPublicIP(isp, ip)
 }
 
-func UpdateIspPublicIP(isp *entities.Isp, ip string) error {
+func UpdateISPPublicIP(isp *entities.ISP, ip string) error {
 	ispDao := dao.NewISPDaoImpl()
 	if ip != isp.PublicIp {
 		environment.Get().OutputLogger.Printf("updating public ip for %s. Old: %s New: %s\n", isp.Name, isp.PublicIp, ip)
