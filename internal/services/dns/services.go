@@ -11,17 +11,27 @@ import (
 	backEntities "github.com/vaiojarsad/lan-tools/internal/services/dns/provider/backend/entities"
 	domainServices "github.com/vaiojarsad/lan-tools/internal/services/domain"
 	ispServices "github.com/vaiojarsad/lan-tools/internal/services/isp"
+	"github.com/vaiojarsad/lan-tools/internal/services/mail"
 )
 
-func CreateRecordA(domainName, ispCode string) error {
+func getCommons(domainName, ispCode string) (*entities.ISP, *entities.Domain, error) {
 	domain, err := domainServices.GetDomainByName(domainName)
 	if err != nil {
-		return fmt.Errorf("error searching domain by name: %w", err)
+		return nil, nil, fmt.Errorf("error searching domain by name: %w", err)
 	}
 
 	isp, err := ispServices.GetISPByCode(ispCode)
 	if err != nil {
-		return fmt.Errorf("error searching isp by code: %w", err)
+		return nil, nil, fmt.Errorf("error searching isp by code: %w", err)
+	}
+	return isp, domain, nil
+}
+
+
+func CreateRecordA(domainName, ispCode string) error {
+	isp, domain, err := getCommons(domainName, ispCode)
+	if err != nil {
+		return err
 	}
 
 	ispCurrentIp, err := ispServices.GetPublicIP(isp.PublicIpGetterType, isp.PublicIpGetterCfg)
@@ -82,14 +92,9 @@ func CreateRecordA(domainName, ispCode string) error {
 }
 
 func SyncRecordA(domainName, ispCode string) error {
-	domain, err := domainServices.GetDomainByName(domainName)
+	isp, domain, err := getCommons(domainName, ispCode)
 	if err != nil {
-		return fmt.Errorf("error searching domain by name: %w", err)
-	}
-
-	isp, err := ispServices.GetISPByCode(ispCode)
-	if err != nil {
-		return fmt.Errorf("error searching isp by code: %w", err)
+		return err
 	}
 
 	ispCurrentIp, err := ispServices.GetPublicIP(isp.PublicIpGetterType, isp.PublicIpGetterCfg)
@@ -121,7 +126,7 @@ func SyncRecordsA(ispCode string) error {
 		return fmt.Errorf("error retrieving public IP for ISP: %w", err)
 	}
 
-	if err = sendIpChangedMail(isp.Name, ispCurrentIp, isp.PublicIp); err != nil {
+	if err = mail.SendIpChangedMail(isp.Name, ispCurrentIp, isp.PublicIp); err != nil {
 		environment.Get().ErrorLogger.Printf("error sending ip changed mail: %v\n", err)
 	}
 
@@ -149,7 +154,7 @@ func SyncRecordsA(ispCode string) error {
 	}
 
 	if len(errs) > 0 {
-		if err = sendSyncErrorsMail(isp.Name, ispCurrentIp, errs); err != nil {
+		if err = mail.SendSyncErrorsMail(isp.Name, ispCurrentIp, errs); err != nil {
 			environment.Get().ErrorLogger.Printf("error sending sync errors mail: %v\n", err)
 		}
 	}

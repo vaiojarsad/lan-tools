@@ -1,4 +1,4 @@
-package dns
+package mail
 
 import (
 	"bytes"
@@ -29,7 +29,7 @@ type syncErrorsMailData struct {
 	Errors    []error
 }
 
-func sendIpChangedMail(provider, currentIP, lastIP string) error {
+func SendIpChangedMail(provider, currentIP, lastIP string) error {
 	return sendMail("Public IP for "+provider, "ip_changed.tmpl", ipChangedMailData{
 		Provider:  provider,
 		LastIP:    lastIP,
@@ -37,7 +37,7 @@ func sendIpChangedMail(provider, currentIP, lastIP string) error {
 	})
 }
 
-func sendSyncErrorsMail(provider, currentIP string, errs []error) error {
+func SendSyncErrorsMail(provider, currentIP string, errs []error) error {
 	return sendMail("Errors syncing A records for "+provider, "sync_errors.tmpl", syncErrorsMailData{
 		Provider:  provider,
 		CurrentIP: currentIP,
