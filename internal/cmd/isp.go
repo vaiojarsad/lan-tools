@@ -6,7 +6,7 @@ import (
 
 func NewISPRootCommand() *cobra.Command {
 	cmd := newISPRootCommand()
-	cmd.AddCommand(NewISPUpdatePublicIpCommand())
+	cmd.AddCommand(NewISPCheckPublicIpCommand())
 	return cmd
 }
 

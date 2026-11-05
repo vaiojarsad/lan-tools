@@ -126,10 +126,6 @@ func SyncRecordsA(ispCode string) error {
 		return fmt.Errorf("error retrieving public IP for ISP: %w", err)
 	}
 
-	if err = mail.SendIpChangedMail(isp.Name, ispCurrentIp, isp.PublicIp); err != nil {
-		environment.Get().ErrorLogger.Printf("error sending ip changed mail: %v\n", err)
-	}
-
 	dnsISPDao := dao.NewDNSISPDaoImpl()
 	dnsISPs, err := dnsISPDao.GetByISPId(isp.StorageId())
 	if err != nil {
