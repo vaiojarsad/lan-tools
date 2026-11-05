@@ -10,10 +10,10 @@ import (
 
 // Environment holds the execution context
 type Environment struct {
-	ConfigManager      config.Manager
-	ErrorLogger        *log.Logger
-	OutputLogger       *log.Logger
-	IPChangedPublisher *events.InMemoryBus[*events.IPChanged]
+	ConfigManager             config.Manager
+	ErrorLogger               *log.Logger
+	OutputLogger              *log.Logger
+	ISPPublicIPCheckPublisher *events.InMemoryBus[*events.ISPPublicIPCheck]
 }
 
 var (

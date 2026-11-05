@@ -7,6 +7,7 @@ import (
 	"github.com/vaiojarsad/lan-tools/internal/dao"
 	"github.com/vaiojarsad/lan-tools/internal/entities"
 	"github.com/vaiojarsad/lan-tools/internal/environment"
+	"github.com/vaiojarsad/lan-tools/internal/events"
 	"github.com/vaiojarsad/lan-tools/internal/services/mail"
 )
 
@@ -56,7 +57,24 @@ func CheckISPPublicIp(ispCode string, trigger bool) error {
 		environment.Get().ErrorLogger.Printf("error sending ip changed mail: %v\n", err)
 	}
 
-	if ip == isp.PublicIp || trigger == false {
+	environment.Get().OutputLogger.Printf("locally cached public ip assigned by provider %s is %s\n", isp.Name, isp.PublicIp)
+	environment.Get().OutputLogger.Printf("public ip assigned by provider %s is %s\n", isp.Name, ip)
+
+	if !trigger {
+		if ip != isp.PublicIp {
+			environment.Get().OutputLogger.Printf("Warning! Trigger = false. IP check event won't be published\n")
+		}
+		return nil
+	}
+
+	err = environment.Get().ISPPublicIPCheckPublisher.Publish(&events.ISPPublicIPCheck{ISP: isp, OldIP: isp.PublicIp, NewIP: ip})
+	if err != nil {
+		environment.Get().ErrorLogger.Printf("Warning! Errors publishing/consuming IP check event\n")
+	} else {
+		environment.Get().OutputLogger.Printf("IP check event successfully published/consumed\n")
+	}
+
+	if ip == isp.PublicIp {
 		return nil
 	}
 

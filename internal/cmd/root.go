@@ -44,8 +44,8 @@ func loadCfg(c *cobra.Command, _ []string) error {
 	env := environment.Create()
 	env.ErrorLogger = loggerutils.GetStdErrorLogger()
 	env.OutputLogger = loggerutils.GetStdOutputLogger()
-	env.IPChangedPublisher = events.NewInMemoryBus[*events.IPChanged]()
-	env.IPChangedPublisher.Subscribe(dnsevents.HandleISPPublicIPChanged)
+	env.ISPPublicIPCheckPublisher = events.NewInMemoryBus[*events.ISPPublicIPCheck]()
+	env.ISPPublicIPCheckPublisher.Subscribe(dnsevents.HandleISPPublicIPCheck)
 	cm, err := config.Create(configFile)
 	if err != nil {
 		return err

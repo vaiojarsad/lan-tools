@@ -27,7 +27,6 @@ func getCommons(domainName, ispCode string) (*entities.ISP, *entities.Domain, er
 	return isp, domain, nil
 }
 
-
 func CreateRecordA(domainName, ispCode string) error {
 	isp, domain, err := getCommons(domainName, ispCode)
 	if err != nil {
@@ -126,6 +125,10 @@ func SyncRecordsA(ispCode string) error {
 		return fmt.Errorf("error retrieving public IP for ISP: %w", err)
 	}
 
+	return SyncRecordsAWithIP(isp, ispCurrentIp)
+}
+
+func SyncRecordsAWithIP(isp *entities.ISP, ispCurrentIp string) error {
 	dnsISPDao := dao.NewDNSISPDaoImpl()
 	dnsISPs, err := dnsISPDao.GetByISPId(isp.StorageId())
 	if err != nil {
@@ -172,6 +175,10 @@ func updateRecordA(dnsISP *entities.DNSISP, isp *entities.ISP, domain *entities.
 	if err != nil {
 		return fmt.Errorf("error getting dns record from dns provider: %w", err)
 	}
+
+	environment.Get().OutputLogger.Printf("current ip for A record for %s on dns provider is %s\n", domain.Name, record.Content)
+	environment.Get().OutputLogger.Printf("current public ip from isp %s is %s\n", isp.Name, newIP)
+	environment.Get().OutputLogger.Printf("isp code on dns provider A record is %s\n", record.ISPCode)
 
 	if record.ISPCode != isp.Code || record.Content != newIP {
 		record.ISPCode = isp.Code

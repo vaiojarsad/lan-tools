@@ -2,6 +2,8 @@ package events
 
 import (
 	"errors"
+
+	"github.com/vaiojarsad/lan-tools/internal/entities"
 )
 
 type Handler[T any] func(T) error
@@ -28,8 +30,8 @@ func (b *InMemoryBus[T]) Publish(event T) error {
 	return errors.Join(errs...)
 }
 
-type IPChanged struct {
-	ISPCode string
-	OldIP   string
-	NewIP   string
+type ISPPublicIPCheck struct {
+	ISP   *entities.ISP
+	OldIP string
+	NewIP string
 }
