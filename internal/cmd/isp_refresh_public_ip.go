@@ -3,11 +3,7 @@ package cmd
 import (
 	//"fmt"
 
-	"errors"
-
 	"github.com/spf13/cobra"
-	"github.com/vaiojarsad/lan-tools/internal/environment"
-	"github.com/vaiojarsad/lan-tools/internal/events"
 	"github.com/vaiojarsad/lan-tools/internal/services/isp"
 	//"github.com/vaiojarsad/lan-tools/internal/environment"
 	//"github.com/vaiojarsad/lan-tools/internal/isp"
@@ -33,21 +29,12 @@ func newISPUpdatePublicIpCommand() *cobra.Command {
 	}
 	f := cmd.Flags()
 	_ = cmd.MarkFlagRequired(addISPCodeFlag(&p.code, f))
-	_ = cmd.MarkFlagRequired(addTriggerRelatedFlag(&p.trigger, f))
+	// _ = cmd.MarkFlagRequired(addTriggerRelatedFlag(&p.trigger, f))
 	return cmd
 }
 
 func ispUpdatePublicIpCommand(p *ispUpdatePublicIpParams) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		oldIP, newIP, err := isp.UpdateISPPublicIp(p.code)
-		if !p.trigger || oldIP == newIP {
-			return err
-		}
-		errs := environment.Get().IPChangedPublisher.Publish(&events.IPChanged{
-			ISPCode: p.code,
-			OldIP:   oldIP,
-			NewIP:   newIP,
-		})
-		return errors.Join(err, errs)
+		return isp.UpdateISPPublicIp(p.code)
 	}
 }

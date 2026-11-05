@@ -43,16 +43,6 @@ func getCurrentPublicIpForISP(isp *entities.ISP) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var localCurrentIp = isp.PublicIp
-	if ispCurrentIp != localCurrentIp {
-		environment.Get().OutputLogger.Printf("public ip (%s) from provider (%s) and local cache differ.\n", ispCurrentIp, isp.Name)
-		err = ispServices.UpdateISPPublicIP(isp, ispCurrentIp)
-		if err != nil {
-			environment.Get().ErrorLogger.Printf("error trying to update isp public IP in local DB: %v\n", err)
-		}
-	} else {
-		environment.Get().OutputLogger.Printf("public ip (%s) from provider (%s) and local cache (%s) match.\n", ispCurrentIp, isp.Name, isp.PublicIp)
-	}
 	return ispCurrentIp, nil
 }
 
