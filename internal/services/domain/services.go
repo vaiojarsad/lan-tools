@@ -32,3 +32,16 @@ func Create(name, description, dnsProviderCode string) error {
 	}
 	return nil
 }
+
+func GetDomainByName(domainName string) (*entities.Domain, error) {
+	domainDao := dao.NewDomainDaoImpl(dao.NewDNSProviderDaoImpl())
+	domain, err := domainDao.GetByName(domainName)
+	if err != nil {
+		return nil, err
+	}
+
+	if domain == nil {
+		return nil, fmt.Errorf("domain not found for name: %s", domainName)
+	}
+	return domain, nil
+}

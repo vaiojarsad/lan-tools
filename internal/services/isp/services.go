@@ -58,3 +58,16 @@ func UpdateISPPublicIp(ispCode string) error {
 	isp.PublicIpModTime = time.Now()
 	return ispDao.UpdatePublicIpInfo(isp)
 }
+
+func GetISPByCode(ispCode string) (*entities.ISP, error) {
+	ispDao := dao.NewISPDaoImpl()
+	isp, err := ispDao.GetByCode(ispCode)
+	if err != nil {
+		return nil, err
+	}
+
+	if isp == nil {
+		return nil, fmt.Errorf("isp not found for code: %s", ispCode)
+	}
+	return isp, nil
+}
