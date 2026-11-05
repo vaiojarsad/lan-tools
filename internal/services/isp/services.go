@@ -56,10 +56,10 @@ func CheckISPPublicIp(ispCode string, trigger bool) error {
 		environment.Get().ErrorLogger.Printf("error sending ip changed mail: %v\n", err)
 	}
 
-	if ip == isp.PublicIp {
+	if ip == isp.PublicIp || trigger == false {
 		return nil
 	}
-
+	
 	isp.PublicIp = ip
 	isp.PublicIpModTime = time.Now()
 	return ispDao.UpdatePublicIpInfo(isp)
