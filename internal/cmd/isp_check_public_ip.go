@@ -29,7 +29,7 @@ func newISPCheckPublicIpCommand() *cobra.Command {
 	}
 	f := cmd.Flags()
 	_ = cmd.MarkFlagRequired(addISPCodeFlag(&p.code, f))
-	_ = cmd.MarkFlagRequired(addTriggerRelatedFlag(&p.trigger, f))
+	addTriggerRelatedFlag(&p.trigger, f)
 	return cmd
 }
 

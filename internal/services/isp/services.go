@@ -59,7 +59,7 @@ func CheckISPPublicIp(ispCode string, trigger bool) error {
 	if ip == isp.PublicIp || trigger == false {
 		return nil
 	}
-	
+
 	isp.PublicIp = ip
 	isp.PublicIpModTime = time.Now()
 	return ispDao.UpdatePublicIpInfo(isp)
